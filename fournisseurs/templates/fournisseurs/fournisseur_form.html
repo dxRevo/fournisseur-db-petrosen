@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if form.instance.pk %}Modifier fournisseur{% else %}Créer fournisseur{% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0">
+      {% if form.instance.pk %}Modifier{% else %}Créer{% endif %} un fournisseur
+    </h1>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">{{ form.raison_sociale.label }}</label>
+            {{ form.raison_sociale }}
+            {% for error in form.raison_sociale.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% for error in form.email.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">{{ form.domaines.label }}</label>
+            <div class="domaines-selector">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input
+                  id="domaines-search"
+                  type="text"
+                  class="form-control"
+                  placeholder="Rechercher un domaine..."
+                />
+              </div>
+              <div id="domaines-list" class="domaines-list">
+                {% for domaine in form.domaines %}
+                  <label class="domaines-item" data-label="{{ domaine.choice_label|lower }}">
+                    {{ domaine.tag }}
+                    <span>{{ domaine.choice_label }}</span>
+                  </label>
+                {% empty %}
+                  <div class="text-muted small">Aucun domaine disponible.</div>
+                {% endfor %}
+              </div>
+            </div>
+            {% for error in form.domaines.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{{ form.contact.label }}</label>
+            {{ form.contact }}
+            {% for error in form.contact.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{{ form.fonction.label }}</label>
+            {{ form.fonction }}
+            {% for error in form.fonction.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{{ form.telephone.label }}</label>
+            {{ form.telephone }}
+            {% for error in form.telephone.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{{ form.statut.label }}</label>
+            {{ form.statut }}
+            {% for error in form.statut.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">{{ form.adresse.label }}</label>
+            {{ form.adresse }}
+            {% for error in form.adresse.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{{ form.modalites_paiement.label }}</label>
+            {{ form.modalites_paiement }}
+            {% for error in form.modalites_paiement.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{{ form.ninea.label }}</label>
+            {{ form.ninea }}
+            {% for error in form.ninea.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{{ form.rc.label }}</label>
+            {{ form.rc }}
+            {% for error in form.rc.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">{{ form.demande_agrement.label }}</label>
+            {{ form.demande_agrement }}
+            {% for error in form.demande_agrement.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+            {% if form.demande_agrement.help_text %}
+              <div class="form-text">{{ form.demande_agrement.help_text }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+          <a class="btn btn-outline-secondary" href="{% url 'fournisseurs:fournisseurs_list' %}">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const searchInput = document.getElementById("domaines-search");
+      const list = document.getElementById("domaines-list");
+      if (!searchInput || !list) return;
+
+      const items = Array.from(list.querySelectorAll(".domaines-item"));
+      searchInput.addEventListener("input", function () {
+        const query = (searchInput.value || "").toLowerCase().trim();
+        items.forEach(function (item) {
+          const label = item.dataset.label || "";
+          item.style.display = label.includes(query) ? "" : "none";
+        });
+      });
+    })();
+  </script>
+{% endblock %}
+

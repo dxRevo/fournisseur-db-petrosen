@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Fournisseurs{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 section-title d-inline-flex align-items-center gap-2">
+      <i class="bi bi-speedometer2"></i>
+      <span>Dashboard</span>
+    </h1>
+    <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:fournisseur_create' %}">
+      <i class="bi bi-plus-circle"></i>
+      <span>Nouveau fournisseur</span>
+    </a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="card metric-card h-100">
+        <div class="card-body">
+          <div class="metric-label">Total</div>
+          <div class="fs-3 fw-bold metric-value d-inline-flex align-items-center gap-2">
+            <i class="bi bi-collection"></i>
+            <span>{{ stats.total }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card metric-card h-100">
+        <div class="card-body">
+          <div class="metric-label">En attente</div>
+          <div class="fs-3 fw-bold metric-value d-inline-flex align-items-center gap-2">
+            <i class="bi bi-hourglass-split"></i>
+            <span>{{ stats.en_attente }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card metric-card h-100">
+        <div class="card-body">
+          <div class="metric-label">Validés</div>
+          <div class="fs-3 fw-bold metric-value d-inline-flex align-items-center gap-2">
+            <i class="bi bi-check2-circle"></i>
+            <span>{{ stats.valide }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card metric-card h-100">
+        <div class="card-body">
+          <div class="metric-label">Refusés</div>
+          <div class="fs-3 fw-bold metric-value d-inline-flex align-items-center gap-2">
+            <i class="bi bi-x-circle"></i>
+            <span>{{ stats.refuse }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

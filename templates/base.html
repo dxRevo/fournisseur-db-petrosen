@@ -1,0 +1,290 @@
+<!doctype html>
+{% load static %}
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Gestion des fournisseurs{% endblock %}</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      :root {
+        --app-blue-900: #11335f;
+        --app-blue-800: #1e5aa5;
+        --app-blue-700: #2f7de1;
+        --app-blue-100: #f1f6ff;
+        --app-bg: #ffffff;
+        --app-surface: #ffffff;
+        --app-border: #e3ebf8;
+      }
+
+      body {
+        min-height: 100vh;
+        background: var(--app-bg);
+        color: #1e2a3a;
+      }
+
+      .app-navbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--app-border);
+        box-shadow: 0 6px 18px rgba(32, 63, 110, 0.06);
+      }
+
+      .app-navbar .navbar-brand {
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: var(--app-blue-900);
+      }
+
+      .app-navbar .nav-link {
+        color: #4c607e;
+        font-weight: 500;
+      }
+
+      .app-navbar .nav-link:hover,
+      .app-navbar .nav-link:focus,
+      .app-navbar .nav-link.active {
+        color: var(--app-blue-800);
+      }
+
+      .app-shell {
+        max-width: 1160px;
+      }
+
+      .card {
+        border: 1px solid var(--app-border);
+        border-radius: 16px;
+        background: var(--app-surface);
+        box-shadow: 0 8px 22px rgba(24, 48, 88, 0.05);
+      }
+
+      .table-card {
+        overflow: hidden;
+      }
+
+      .table {
+        margin-bottom: 0;
+      }
+
+      .table > :not(caption) > * > * {
+        border-bottom-color: #edf2fb;
+      }
+
+      .table thead th {
+        background-color: var(--app-blue-100);
+        color: var(--app-blue-900);
+        border-bottom-width: 1px;
+      }
+
+      .badge {
+        font-weight: 600;
+      }
+
+      .form-control,
+      .form-select {
+        border-color: #c8d7f5;
+        border-radius: 12px;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--app-blue-700);
+        box-shadow: 0 0 0 0.25rem rgba(31, 110, 212, 0.2);
+      }
+
+      .btn {
+        border-radius: 12px;
+        font-weight: 600;
+      }
+
+      .btn-icon {
+        width: 2.1rem;
+        height: 2.1rem;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .actions-cell {
+        width: 92px;
+      }
+
+      .actions-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .domaines-selector {
+        border: 1px solid #c8d7f5;
+        border-radius: 12px;
+        background: #f9fbff;
+        padding: 0.75rem;
+      }
+
+      .domaines-list {
+        max-height: 220px;
+        overflow-y: auto;
+        margin-top: 0.6rem;
+        padding-right: 0.2rem;
+      }
+
+      .domaines-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.45rem;
+        border-radius: 10px;
+      }
+
+      .domaines-item:hover {
+        background: #eef5ff;
+      }
+
+      .domaines-item input[type="checkbox"] {
+        margin-top: 0;
+      }
+
+      .btn-primary {
+        background: linear-gradient(120deg, #2e74d1, #4b95f6);
+        border: none;
+      }
+
+      .btn-primary:hover,
+      .btn-primary:focus {
+        background: linear-gradient(120deg, #2363bc, #3e86e6);
+      }
+
+      .btn-outline-primary {
+        border-color: #7aa6eb;
+        color: var(--app-blue-800);
+      }
+
+      .btn-outline-primary:hover,
+      .btn-outline-primary:focus {
+        background-color: var(--app-blue-100);
+        color: var(--app-blue-900);
+        border-color: var(--app-blue-700);
+      }
+
+      .metric-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+      }
+
+      .metric-card .metric-label {
+        color: #5f7395;
+        font-weight: 600;
+      }
+
+      .metric-card .metric-value {
+        color: var(--app-blue-900);
+      }
+
+      .section-title {
+        color: var(--app-blue-900);
+        font-weight: 700;
+      }
+
+      .icon {
+        color: var(--app-blue-700);
+      }
+
+      .login-form input[type="text"],
+      .login-form input[type="password"],
+      .login-form input[type="email"] {
+        width: 100%;
+        border: 1px solid #c8d7f5;
+        border-radius: 12px;
+        padding: 0.52rem 0.8rem;
+      }
+
+      .login-form input:focus {
+        outline: none;
+        border-color: var(--app-blue-700);
+        box-shadow: 0 0 0 0.25rem rgba(31, 110, 212, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light app-navbar">
+      <div class="container">
+        <a class="navbar-brand d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:dashboard' %}">
+          <i class="bi bi-grid-1x2-fill icon"></i>
+          <span>Fournisseurs</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="navbar-nav me-auto">
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:fournisseurs_list' %}">
+                  <i class="bi bi-buildings"></i>
+                  <span>Liste fournisseurs</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:domaines_list' %}">
+                  <i class="bi bi-diagram-3"></i>
+                  <span>Domaines</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+
+          <ul class="navbar-nav">
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link d-inline-flex align-items-center gap-2" href="{% url 'logout' %}">
+                  <i class="bi bi-box-arrow-right"></i>
+                  <span>Déconnexion</span>
+                </a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link d-inline-flex align-items-center gap-2" href="{% url 'login' %}">
+                  <i class="bi bi-box-arrow-in-right"></i>
+                  <span>Connexion</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container app-shell py-4">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
+
