@@ -10,6 +10,14 @@
         <span>{{ fournisseur.raison_sociale }}</span>
       </h1>
       <div class="text-muted">Créé le {{ fournisseur.date_creation|date:"d/m/Y H:i" }}</div>
+      <div class="text-muted">
+        Ajouté par :
+        {% if fournisseur.created_by %}
+          {% firstof fournisseur.created_by.get_full_name fournisseur.created_by.username %}
+        {% else %}
+          —
+        {% endif %}
+      </div>
     </div>
     <div class="text-end actions-group">
       <a class="btn btn-outline-primary btn-icon" href="{% url 'fournisseurs:fournisseur_update' fournisseur.pk %}" aria-label="Modifier" title="Modifier">

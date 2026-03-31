@@ -214,15 +214,81 @@
         border-color: var(--app-blue-700);
         box-shadow: 0 0 0 0.25rem rgba(31, 110, 212, 0.2);
       }
+
+      .auth-login-page {
+        background:
+          radial-gradient(circle at 0% 0%, rgba(47, 125, 225, 0.14), transparent 30%),
+          radial-gradient(circle at 100% 0%, rgba(17, 51, 95, 0.1), transparent 35%),
+          #f5f9ff;
+      }
+
+      .auth-login-page .app-shell {
+        max-width: 1000px;
+      }
+
+      .auth-login-wrap {
+        min-height: calc(100vh - 130px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .auth-login-card {
+        width: 100%;
+        max-width: 460px;
+        border: 1px solid #dce7fb;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 20px 44px rgba(26, 66, 124, 0.14);
+      }
+
+      .auth-login-badge {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #2f7de1, #4c97f7);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+      }
+
+      .auth-login-subtitle {
+        color: #5c7194;
+      }
+
+      .auth-input-wrap {
+        position: relative;
+      }
+
+      .auth-input-wrap .bi {
+        position: absolute;
+        left: 0.85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c82a6;
+      }
+
+      .auth-input-wrap input {
+        width: 100%;
+        border: 1px solid #cddaf3;
+        border-radius: 12px;
+        padding: 0.62rem 0.8rem 0.62rem 2.35rem;
+        background: #fff;
+      }
+
+      .auth-input-wrap input:focus {
+        outline: none;
+        border-color: var(--app-blue-700);
+        box-shadow: 0 0 0 0.25rem rgba(47, 125, 225, 0.18);
+      }
     </style>
   </head>
-  <body>
+  <body class="{% block body_class %}{% endblock %}">
     <nav class="navbar navbar-expand-lg navbar-light app-navbar">
       <div class="container">
-        <a class="navbar-brand d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:dashboard' %}">
-          <i class="bi bi-grid-1x2-fill icon"></i>
-          <span>Fournisseurs</span>
-        </a>
+        <a class="navbar-brand" href="{% url 'fournisseurs:dashboard' %}">Fournisseurs</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
           <span class="navbar-toggler-icon"></span>
@@ -232,22 +298,22 @@
           <ul class="navbar-nav me-auto">
             {% if user.is_authenticated %}
               <li class="nav-item">
-                <a class="nav-link d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:fournisseurs_list' %}">
-                  <i class="bi bi-buildings"></i>
-                  <span>Liste fournisseurs</span>
-                </a>
+                <a class="nav-link" href="{% url 'fournisseurs:fournisseurs_list' %}">Liste fournisseurs</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:domaines_list' %}">
-                  <i class="bi bi-diagram-3"></i>
-                  <span>Domaines</span>
-                </a>
+                <a class="nav-link" href="{% url 'fournisseurs:domaines_list' %}">Domaines</a>
               </li>
             {% endif %}
           </ul>
 
           <ul class="navbar-nav">
             {% if user.is_authenticated %}
+              <li class="nav-item">
+                <span class="nav-link d-inline-flex align-items-center gap-2">
+                  <i class="bi bi-person-circle"></i>
+                  <span>{% firstof user.get_full_name user.username %}</span>
+                </span>
+              </li>
               <li class="nav-item">
                 <a class="nav-link d-inline-flex align-items-center gap-2" href="{% url 'logout' %}">
                   <i class="bi bi-box-arrow-right"></i>

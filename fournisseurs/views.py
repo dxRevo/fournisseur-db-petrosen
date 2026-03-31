@@ -41,7 +41,7 @@ class DomaineListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         # Evite les requêtes N+1 côté template (count sur ManyToMany).
-        qs = DomaineActivite.objects.annotate(
+        qs = DomaineActivite.objects.select_related("created_by").annotate(
             nb_fournisseurs=Count("fournisseurs", distinct=True)
         ).order_by("nom")
         query = (self.request.GET.get("q") or "").strip()
@@ -67,6 +67,7 @@ class DomaineCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy("fournisseurs:domaines_list")
 
     def form_valid(self, form):
+        form.instance.created_by = self.request.user
         response = super().form_valid(form)
         messages.success(self.request, "Domaine créé avec succès.")
         return response
@@ -105,7 +106,7 @@ class FournisseurListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = (
-            Fournisseur.objects.all()
+            Fournisseur.objects.select_related("created_by")
             .prefetch_related("domaines")
             .order_by("-date_creation")
         )
@@ -147,7 +148,7 @@ class FournisseurDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "fournisseur"
 
     def get_queryset(self):
-        return Fournisseur.objects.all().prefetch_related("domaines")
+        return Fournisseur.objects.select_related("created_by").prefetch_related("domaines")
 
 
 class FournisseurCreateView(LoginRequiredMixin, CreateView):
@@ -159,6 +160,7 @@ class FournisseurCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy("fournisseurs:fournisseur_detail", kwargs={"pk": self.object.pk})
 
     def form_valid(self, form):
+        form.instance.created_by = self.request.user
         response = super().form_valid(form)
         messages.success(self.request, "Fournisseur créé avec succès.")
         return response

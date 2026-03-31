@@ -3,6 +3,13 @@ from django.db import models
 
 class DomaineActivite(models.Model):
     nom = models.CharField(max_length=150, unique=True)
+    created_by = models.ForeignKey(
+        "auth.User",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="domaines_crees",
+    )
 
     class Meta:
         verbose_name = "Domaine d’activité"
@@ -21,6 +28,13 @@ class Fournisseur(models.Model):
 
     raison_sociale = models.CharField(max_length=255, db_index=True)
     domaines = models.ManyToManyField(DomaineActivite, related_name="fournisseurs", blank=True)
+    created_by = models.ForeignKey(
+        "auth.User",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="fournisseurs_crees",
+    )
 
     contact = models.CharField(max_length=255)
     fonction = models.CharField(max_length=255)

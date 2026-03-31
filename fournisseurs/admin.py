@@ -8,7 +8,7 @@ from fournisseurs.models import DomaineActivite, Fournisseur
 
 @admin.register(DomaineActivite)
 class DomaineActiviteAdmin(admin.ModelAdmin):
-    list_display = ("nom", "fournisseurs_count")
+    list_display = ("nom", "created_by", "fournisseurs_count")
     search_fields = ("nom",)
     ordering = ("nom",)
     list_per_page = 25
@@ -26,6 +26,7 @@ class DomaineActiviteAdmin(admin.ModelAdmin):
 class FournisseurAdmin(admin.ModelAdmin):
     list_display = (
         "raison_sociale",
+        "created_by",
         "statut",
         "email",
         "date_creation",

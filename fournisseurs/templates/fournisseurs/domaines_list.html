@@ -43,6 +43,7 @@
           <tr>
             <th>Nom</th>
             <th>Nombre de fournisseurs</th>
+            <th>Ajouté par</th>
             <th class="text-end actions-cell">Actions</th>
           </tr>
         </thead>
@@ -51,6 +52,13 @@
             <tr>
               <td>{{ domaine.nom }}</td>
               <td>{{ domaine.nb_fournisseurs }}</td>
+              <td>
+                {% if domaine.created_by %}
+                  {% firstof domaine.created_by.get_full_name domaine.created_by.username %}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
               <td class="text-end actions-cell">
                 <div class="actions-group">
                   <a class="btn btn-sm btn-outline-primary btn-icon" href="{% url 'fournisseurs:domaine_update' domaine.pk %}" aria-label="Modifier" title="Modifier">
@@ -64,7 +72,7 @@
             </tr>
           {% empty %}
             <tr>
-              <td colspan="3" class="text-center text-muted">Aucun domaine</td>
+              <td colspan="4" class="text-center text-muted">Aucun domaine</td>
             </tr>
           {% endfor %}
         </tbody>
