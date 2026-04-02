@@ -12,6 +12,7 @@ from fournisseurs.views import (
     FournisseurDetailView,
     FournisseurListView,
     FournisseurUpdateView,
+    fournisseur_quick_status_update,
 )
 
 app_name = "fournisseurs"
@@ -27,6 +28,11 @@ urlpatterns = [
         name="demande_agrement",
     ),
     path("fournisseurs/<int:pk>/modifier/", FournisseurUpdateView.as_view(), name="fournisseur_update"),
+    path(
+        "fournisseurs/<int:pk>/status/",
+        fournisseur_quick_status_update,
+        name="fournisseur_quick_status_update",
+    ),
     path("fournisseurs/<int:pk>/supprimer/", FournisseurDeleteView.as_view(), name="fournisseur_delete"),
     path("domaines/", DomaineListView.as_view(), name="domaines_list"),
     path("domaines/creer/", DomaineCreateView.as_view(), name="domaine_create"),

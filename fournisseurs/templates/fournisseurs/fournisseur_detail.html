@@ -3,21 +3,21 @@
 {% block title %}Détail fournisseur - {{ fournisseur.raison_sociale }}{% endblock %}
 
 {% block content %}
-  <div class="d-flex align-items-center justify-content-between mb-3">
+  <header class="saas-page-header">
     <div>
-      <h1 class="h3 mb-1 section-title d-inline-flex align-items-center gap-2">
-        <i class="bi bi-building"></i>
+      <h1 class="saas-page-title">
+        <i class="bi bi-building" aria-hidden="true"></i>
         <span>{{ fournisseur.raison_sociale }}</span>
       </h1>
-      <div class="text-muted">Créé le {{ fournisseur.date_creation|date:"d/m/Y H:i" }}</div>
-      <div class="text-muted">
-        Ajouté par :
+      <p class="saas-page-sub mb-0">
+        Créé le {{ fournisseur.date_creation|date:"d/m/Y H:i" }}
+        · Ajouté par :
         {% if fournisseur.created_by %}
           {% firstof fournisseur.created_by.get_full_name fournisseur.created_by.username %}
         {% else %}
           —
         {% endif %}
-      </div>
+      </p>
     </div>
     <div class="text-end actions-group">
       <a class="btn btn-outline-primary btn-icon" href="{% url 'fournisseurs:fournisseur_update' fournisseur.pk %}" aria-label="Modifier" title="Modifier">
@@ -27,19 +27,22 @@
         <i class="bi bi-trash3"></i>
       </a>
     </div>
-  </div>
+  </header>
 
-  <div class="row g-3">
+  <div class="row g-4">
     <div class="col-lg-7">
       <div class="card h-100">
-        <div class="card-body">
-          <h2 class="h5 mb-3 d-inline-flex align-items-center gap-2">
-            <i class="bi bi-info-circle icon"></i>
+        <div class="card-body saas-card-body-pad">
+          <h2 class="h5 section-title mb-4 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-info-circle"></i>
             <span>Informations</span>
           </h2>
           <dl class="row mb-0">
             <dt class="col-sm-4">Contact</dt>
-            <dd class="col-sm-8">{{ fournisseur.contact }} ({{ fournisseur.fonction }})</dd>
+            <dd class="col-sm-8">{{ fournisseur.contact|default:"—" }}</dd>
+
+            <dt class="col-sm-4">Fonction</dt>
+            <dd class="col-sm-8">{{ fournisseur.fonction|default:"—" }}</dd>
 
             <dt class="col-sm-4">Téléphone</dt>
             <dd class="col-sm-8">{{ fournisseur.telephone|default:"—" }}</dd>
@@ -62,11 +65,11 @@
             <dt class="col-sm-4">Statut</dt>
             <dd class="col-sm-8">
               {% if fournisseur.statut == 'en_attente' %}
-                <span class="badge text-bg-warning">En attente</span>
+                <span class="badge rounded-pill badge-statut-en_attente">En attente</span>
               {% elif fournisseur.statut == 'valide' %}
-                <span class="badge text-bg-success">Validé</span>
+                <span class="badge rounded-pill badge-statut-valide">Validé</span>
               {% else %}
-                <span class="badge text-bg-danger">Refusé</span>
+                <span class="badge rounded-pill badge-statut-refuse">Refusé</span>
               {% endif %}
             </dd>
           </dl>
@@ -76,9 +79,9 @@
 
     <div class="col-lg-5">
       <div class="card h-100">
-        <div class="card-body">
-          <h2 class="h5 mb-3 d-inline-flex align-items-center gap-2">
-            <i class="bi bi-folder2-open icon"></i>
+        <div class="card-body saas-card-body-pad">
+          <h2 class="h5 section-title mb-4 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-folder2-open"></i>
             <span>Domaines & documents</span>
           </h2>
 
@@ -86,7 +89,7 @@
             <div class="text-muted mb-1">Domaines</div>
             <div>
               {% for d in fournisseur.domaines.all %}
-                <span class="badge text-bg-secondary me-1 mb-1">{{ d.nom }}</span>
+                <span class="badge rounded-pill bg-light text-secondary border me-1 mb-1">{{ d.nom }}</span>
               {% empty %}
                 <span class="text-muted">—</span>
               {% endfor %}
@@ -96,12 +99,13 @@
           <div>
             <div class="text-muted mb-1">Demande d’agrément (PDF)</div>
             {% if fournisseur.demande_agrement %}
+              <span class="badge rounded-pill badge-qualite-doc-oui me-2 align-middle">Fichier joint</span>
               <a class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:demande_agrement' fournisseur.pk %}" target="_blank" rel="noopener">
                 <i class="bi bi-file-earmark-pdf"></i>
-                <span>Ouvrir la demande d'agrément</span>
+                <span>Ouvrir le PDF</span>
               </a>
             {% else %}
-              <span class="text-muted">—</span>
+              <span class="badge rounded-pill badge-qualite-doc-non">Non fourni</span>
             {% endif %}
           </div>
         </div>

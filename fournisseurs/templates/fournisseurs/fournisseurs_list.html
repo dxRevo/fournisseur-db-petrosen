@@ -1,21 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Liste fournisseurs{% endblock %}
+{% block title %}Fournisseurs · Clean Base{% endblock %}
 
 {% block content %}
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="h3 mb-0 section-title d-inline-flex align-items-center gap-2">
-      <i class="bi bi-buildings"></i>
-      <span>Fournisseurs</span>
-    </h1>
-    <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:fournisseur_create' %}">
-      <i class="bi bi-plus-circle"></i>
+  <header class="saas-page-header">
+    <div>
+      <h1 class="saas-page-title">
+        <i class="bi bi-buildings" aria-hidden="true"></i>
+        <span>Fournisseurs</span>
+      </h1>
+      <p class="saas-page-sub">Recherche, filtres et suivi des dossiers.</p>
+    </div>
+    <a class="btn btn-primary d-inline-flex align-items-center gap-2 px-3" href="{% url 'fournisseurs:fournisseur_create' %}">
+      <i class="bi bi-plus-lg"></i>
       <span>Ajouter</span>
     </a>
-  </div>
+  </header>
 
-  <form class="row g-2 align-items-end mb-3" method="get">
-    <div class="col-md-6">
+  <div class="card mb-4">
+    <div class="card-body saas-card-body-pad">
+  <form class="row g-3 align-items-end" method="get">
+    {% if doc %}
+      <input type="hidden" name="doc" value="{{ doc }}" />
+    {% endif %}
+    {% if incomplet %}
+      <input type="hidden" name="incomplet" value="{{ incomplet }}" />
+    {% endif %}
+    <div class="col-md-4">
       <label class="form-label">Recherche</label>
       <input
         type="text"
@@ -26,7 +37,7 @@
       />
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
       <label class="form-label">Filtrer par domaine</label>
       <select name="domaine" class="form-select">
         <option value="">Tous les domaines</option>
@@ -41,6 +52,16 @@
       </select>
     </div>
 
+    <div class="col-md-3">
+      <label class="form-label">Statut</label>
+      <select name="statut" class="form-select">
+        <option value="" {% if not statut %}selected{% endif %}>Tous les statuts</option>
+        <option value="en_attente" {% if statut == "en_attente" %}selected{% endif %}>En attente</option>
+        <option value="valide" {% if statut == "valide" %}selected{% endif %}>Validé</option>
+        <option value="refuse" {% if statut == "refuse" %}selected{% endif %}>Refusé</option>
+      </select>
+    </div>
+
     <div class="col-md-2 d-grid">
       <button type="submit" class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2">
         <i class="bi bi-search"></i>
@@ -49,9 +70,11 @@
     </div>
 
     <div class="col-12 d-flex justify-content-end">
-      <a class="btn btn-link p-0" href="{% url 'fournisseurs:fournisseurs_list' %}">Réinitialiser</a>
+      <a class="btn btn-link link-secondary text-decoration-none p-0" href="{% url 'fournisseurs:fournisseurs_list' %}">Réinitialiser les filtres</a>
     </div>
   </form>
+    </div>
+  </div>
 
   <div class="card table-card">
     <div class="table-responsive">
@@ -81,16 +104,16 @@
               <td>{{ fournisseur.email }}</td>
               <td>
                 {% if fournisseur.statut == 'en_attente' %}
-                  <span class="badge text-bg-warning">En attente</span>
+                  <span class="badge rounded-pill badge-statut-en_attente">En attente</span>
                 {% elif fournisseur.statut == 'valide' %}
-                  <span class="badge text-bg-success">Validé</span>
+                  <span class="badge rounded-pill badge-statut-valide">Validé</span>
                 {% else %}
-                  <span class="badge text-bg-danger">Refusé</span>
+                  <span class="badge rounded-pill badge-statut-refuse">Refusé</span>
                 {% endif %}
               </td>
               <td>
                 {% for d in fournisseur.domaines.all %}
-                  <span class="badge text-bg-secondary me-1 mb-1">{{ d.nom }}</span>
+                  <span class="badge rounded-pill bg-light text-secondary border me-1 mb-1">{{ d.nom }}</span>
                 {% empty %}
                   <span class="text-muted">—</span>
                 {% endfor %}

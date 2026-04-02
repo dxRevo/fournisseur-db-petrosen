@@ -4,8 +4,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Gestion des fournisseurs{% endblock %}</title>
+    <title>{% block title %}Clean Base{% endblock %}</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -18,93 +24,309 @@
     />
     <style>
       :root {
-        --app-blue-900: #11335f;
+        --saas-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        --saas-bg: #ffffff;
+        --saas-surface: #ffffff;
+        --saas-surface-elevated: #ffffff;
+        --saas-border: #e5e7eb;
+        --saas-border-strong: #d1d5db;
+        --saas-text: #111827;
+        --saas-text-secondary: #4b5563;
+        --saas-text-muted: #6b7280;
+        --saas-primary: #1e5aa5;
+        --saas-primary-hover: #11335f;
+        --saas-primary-soft: #f3f4f6;
+        --saas-primary-muted: #6b7280;
+        --saas-success: #1e5aa5;
+        --saas-success-soft: #f3f4f6;
+        --saas-radius-sm: 10px;
+        --saas-radius: 14px;
+        --saas-radius-lg: 18px;
+        --saas-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+        --saas-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+        --saas-shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+        --saas-shadow-lg: 0 16px 48px rgba(15, 23, 42, 0.1);
+        --app-blue-900: #111827;
         --app-blue-800: #1e5aa5;
-        --app-blue-700: #2f7de1;
-        --app-blue-100: #f1f6ff;
-        --app-bg: #ffffff;
-        --app-surface: #ffffff;
-        --app-border: #e3ebf8;
+        --app-blue-700: #1e5aa5;
+        --app-blue-100: #f3f4f6;
+        --app-bg: var(--saas-bg);
+        --app-surface: var(--saas-surface);
+        --app-border: var(--saas-border);
       }
 
-      body {
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body.saas-body {
+        --bs-primary: #1e5aa5;
+        --bs-primary-rgb: 30, 90, 165;
+        --bs-link-color: #111827;
+        --bs-link-hover-color: #111827;
         min-height: 100vh;
-        background: var(--app-bg);
-        color: #1e2a3a;
+        font-family: var(--saas-font);
+        font-size: 0.9375rem;
+        line-height: 1.55;
+        letter-spacing: -0.011em;
+        color: var(--saas-text);
+        background-color: #ffffff;
+        background-image: none;
       }
 
-      .app-navbar {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(8px);
-        border-bottom: 1px solid var(--app-border);
-        box-shadow: 0 6px 18px rgba(32, 63, 110, 0.06);
+      .saas-body .app-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        padding-top: 0.65rem;
+        padding-bottom: 0.65rem;
+        background: #ffffff !important;
+        border-bottom: 1px solid var(--saas-border);
       }
 
-      .app-navbar .navbar-brand {
+      .saas-body .app-navbar .container {
+        max-width: 1280px;
+      }
+
+      .saas-brand {
+        display: inline-block;
         font-weight: 700;
-        letter-spacing: 0.4px;
-        color: var(--app-blue-900);
+        font-size: 1.125rem;
+        letter-spacing: -0.02em;
+        color: var(--saas-text) !important;
+        text-decoration: none;
       }
 
-      .app-navbar .nav-link {
-        color: #4c607e;
+      .saas-brand:hover {
+        color: var(--saas-text) !important;
+        opacity: 0.85;
+      }
+
+      .saas-body .app-navbar .nav-link {
+        color: var(--saas-text-secondary) !important;
         font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.45rem 0.85rem !important;
+        border-radius: var(--saas-radius-sm);
+        transition: color 0.15s ease, background 0.15s ease;
       }
 
-      .app-navbar .nav-link:hover,
-      .app-navbar .nav-link:focus,
-      .app-navbar .nav-link.active {
-        color: var(--app-blue-800);
+      .saas-body .app-navbar .nav-link:hover,
+      .saas-body .app-navbar .nav-link:focus {
+        color: var(--saas-text) !important;
+        background: var(--saas-primary-soft);
+      }
+
+      .saas-nav-user {
+        font-size: 0.875rem;
+        color: var(--saas-text-muted) !important;
+        background: #f9fafb;
+        border: 1px solid var(--saas-border);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem !important;
+        margin-right: 0.25rem;
+      }
+
+      .saas-nav-user .bi-person-circle {
+        font-size: 1.15rem;
+        color: var(--saas-text-muted);
       }
 
       .app-shell {
-        max-width: 1160px;
+        max-width: 1280px;
       }
 
-      .card {
-        border: 1px solid var(--app-border);
-        border-radius: 16px;
-        background: var(--app-surface);
-        box-shadow: 0 8px 22px rgba(24, 48, 88, 0.05);
+      .saas-body main.app-shell {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+      }
+
+      .saas-body .card {
+        border: 1px solid var(--saas-border);
+        border-radius: var(--saas-radius-lg);
+        background: var(--saas-surface-elevated);
+        box-shadow: var(--saas-shadow-sm);
+        overflow: hidden;
+      }
+
+      .saas-card-body-pad {
+        padding: 1.35rem 1.5rem;
+      }
+
+      @media (min-width: 768px) {
+        .saas-card-body-pad {
+          padding: 1.5rem 1.75rem;
+        }
+      }
+
+      .saas-page-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+      }
+
+      .saas-page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        color: var(--saas-text);
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .saas-page-title .bi {
+        color: var(--saas-text-muted);
+        font-size: 1.35rem;
+      }
+
+      .saas-page-sub {
+        font-size: 0.875rem;
+        color: var(--saas-text-muted);
+        margin: 0.35rem 0 0 0;
+        max-width: 36rem;
       }
 
       .table-card {
         overflow: hidden;
       }
 
-      .table {
+      .saas-body .table {
         margin-bottom: 0;
+        --bs-table-bg: transparent;
       }
 
-      .table > :not(caption) > * > * {
-        border-bottom-color: #edf2fb;
+      .saas-body .table > :not(caption) > * > * {
+        border-bottom-color: var(--saas-border);
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
+        vertical-align: middle;
       }
 
-      .table thead th {
-        background-color: var(--app-blue-100);
-        color: var(--app-blue-900);
-        border-bottom-width: 1px;
-      }
-
-      .badge {
+      .saas-body .table thead th {
+        background: #f9fafb;
+        color: var(--saas-text-secondary);
+        font-size: 0.7rem;
         font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border-bottom: 1px solid var(--saas-border);
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
       }
 
-      .form-control,
-      .form-select {
-        border-color: #c8d7f5;
-        border-radius: 12px;
+      .saas-body .table-striped > tbody > tr:nth-of-type(odd) > * {
+        --bs-table-bg: rgba(249, 250, 251, 0.9);
       }
 
-      .form-control:focus,
-      .form-select:focus {
-        border-color: var(--app-blue-700);
-        box-shadow: 0 0 0 0.25rem rgba(31, 110, 212, 0.2);
+      .saas-body .table-hover tbody tr:hover > * {
+        --bs-table-bg: #f3f4f6;
       }
 
-      .btn {
-        border-radius: 12px;
+      .saas-body .table tbody a:not(.btn) {
+        color: var(--saas-text);
+        text-decoration: underline;
+        text-decoration-color: #d1d5db;
+        text-underline-offset: 2px;
+      }
+
+      .saas-body .table tbody a:not(.btn):hover {
+        color: var(--saas-text) !important;
+        text-decoration-color: var(--saas-text-muted);
+      }
+
+      .saas-body .badge {
         font-weight: 600;
+        font-size: 0.72rem;
+        padding: 0.35em 0.65em;
+        border-radius: 6px;
+        letter-spacing: 0.02em;
+      }
+
+      .saas-body .form-control,
+      .saas-body .form-select {
+        border-color: var(--saas-border-strong);
+        border-radius: var(--saas-radius-sm);
+        font-size: 0.9rem;
+        padding: 0.55rem 0.85rem;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .saas-body .form-control:focus,
+      .saas-body .form-select:focus {
+        border-color: #9ca3af;
+        box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.06);
+      }
+
+      .saas-body .form-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--saas-text-secondary);
+        margin-bottom: 0.35rem;
+      }
+
+      .saas-body .btn {
+        border-radius: var(--saas-radius-sm);
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+      }
+
+      .saas-body .btn:active {
+        transform: scale(0.98);
+      }
+
+      .saas-body .btn-primary {
+        background: #1e5aa5;
+        border: 1px solid #1e5aa5;
+        color: #fff;
+        box-shadow: none;
+      }
+
+      .saas-body .btn-primary:hover,
+      .saas-body .btn-primary:focus {
+        background: #11335f;
+        border-color: #11335f;
+        color: #fff;
+      }
+
+      .saas-body .btn-outline-primary {
+        border-color: #1e5aa5;
+        color: #1e5aa5;
+        background: #fff;
+      }
+
+      .saas-body .btn-outline-primary:hover,
+      .saas-body .btn-outline-primary:focus {
+        background: #f9fafb;
+        border-color: #11335f;
+        color: #11335f;
+      }
+
+      .saas-body .btn-outline-secondary {
+        border-color: var(--saas-border-strong);
+        color: var(--saas-text-secondary);
+      }
+
+      .saas-body .btn-success {
+        background: #1e5aa5;
+        border: 1px solid #1e5aa5;
+        color: #fff;
+        box-shadow: none;
+      }
+
+      .saas-body .btn-success:hover,
+      .saas-body .btn-success:focus {
+        background: #11335f;
+        border-color: #11335f;
+        color: #fff;
       }
 
       .btn-icon {
@@ -127,9 +349,9 @@
       }
 
       .domaines-selector {
-        border: 1px solid #c8d7f5;
-        border-radius: 12px;
-        background: #f9fbff;
+        border: 1px solid var(--saas-border-strong);
+        border-radius: var(--saas-radius-sm);
+        background: #f9fafb;
         padding: 0.75rem;
       }
 
@@ -145,89 +367,274 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.35rem 0.45rem;
-        border-radius: 10px;
+        border-radius: 8px;
       }
 
       .domaines-item:hover {
-        background: #eef5ff;
+        background: var(--saas-primary-soft);
       }
 
       .domaines-item input[type="checkbox"] {
         margin-top: 0;
       }
 
-      .btn-primary {
-        background: linear-gradient(120deg, #2e74d1, #4b95f6);
-        border: none;
-      }
-
-      .btn-primary:hover,
-      .btn-primary:focus {
-        background: linear-gradient(120deg, #2363bc, #3e86e6);
-      }
-
-      .btn-outline-primary {
-        border-color: #7aa6eb;
-        color: var(--app-blue-800);
-      }
-
-      .btn-outline-primary:hover,
-      .btn-outline-primary:focus {
-        background-color: var(--app-blue-100);
-        color: var(--app-blue-900);
-        border-color: var(--app-blue-700);
-      }
-
       .metric-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+        background: var(--saas-surface);
+        border: 1px solid var(--saas-border);
+        overflow: hidden;
       }
 
       .metric-card .metric-label {
-        color: #5f7395;
+        color: var(--saas-text-muted);
         font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.35rem;
       }
 
       .metric-card .metric-value {
-        color: var(--app-blue-900);
+        color: var(--saas-text);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      .metric-card .metric-value .bi {
+        color: var(--saas-text-muted);
+      }
+
+      a.dashboard-metric-link.card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      a.dashboard-metric-link.card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--saas-shadow-sm);
+        border-color: #d1d5db;
+      }
+
+      a.dashboard-subtile-link {
+        border-radius: var(--saas-radius) !important;
+        border: 1px solid var(--saas-border) !important;
+        background: #fafafa !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      }
+
+      a.dashboard-subtile-link:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--saas-shadow-xs);
+        border-color: #d1d5db !important;
+      }
+
+      a.dashboard-subtile-link .small {
+        font-weight: 600;
+        font-size: 0.7rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--saas-text-muted) !important;
+      }
+
+      a.dashboard-subtile-link .fs-4 {
+        color: var(--saas-text);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .saas-quality-list .list-group-item {
+        border-color: var(--saas-border);
+        padding: 0.85rem 0;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: var(--saas-text-secondary);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .saas-quality-list .list-group-item:hover {
+        background: transparent;
+        color: var(--saas-text);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .saas-quality-list .badge {
+        font-size: 0.75rem;
+      }
+
+      .table tbody tr.dashboard-row-complete {
+        background: #f0fdf4;
+        box-shadow: inset 3px 0 0 #22c55e;
+      }
+
+      .table tbody tr.dashboard-row-complete td {
+        border-color: rgba(34, 197, 94, 0.2);
+      }
+
+      /* Statuts agrément */
+      .badge-statut-en_attente {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+        font-weight: 600;
+      }
+
+      .badge-statut-valide {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+        font-weight: 600;
+      }
+
+      .badge-statut-refuse {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+        font-weight: 600;
+      }
+
+      /* Qualité du dossier (document, complétude, compteurs) */
+      .badge-qualite-doc-oui {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+        font-weight: 600;
+      }
+
+      .badge-qualite-doc-non {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+        font-weight: 600;
+      }
+
+      .badge-qualite-complet-ok {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+        font-weight: 600;
+      }
+
+      .badge-qualite-complet-moyen {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+        font-weight: 600;
+      }
+
+      .badge-qualite-complet-faible {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+        font-weight: 600;
+      }
+
+      .badge-qualite-compte-doc {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+        font-weight: 600;
+      }
+
+      .badge-qualite-compte-incomplet {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+        font-weight: 600;
+      }
+
+      .badge-qualite-taux-incomplet {
+        background: #ffedd5;
+        color: #9a3412;
+        border: 1px solid #fdba74;
+        font-weight: 600;
+      }
+
+      /* Repères couleur KPI tableau de bord (bord gauche) */
+      .saas-body a.dashboard-metric-link.metric-card--kpi-total {
+        border-left: 4px solid #9ca3af;
+      }
+
+      .saas-body a.dashboard-metric-link.metric-card--kpi-attente {
+        border-left: 4px solid #f59e0b;
+      }
+
+      .saas-body a.dashboard-metric-link.metric-card--kpi-valide {
+        border-left: 4px solid #22c55e;
+      }
+
+      .saas-body a.dashboard-metric-link.metric-card--kpi-refuse {
+        border-left: 4px solid #ef4444;
+      }
+
+      a.dashboard-subtile-link.dashboard-subtile--validation {
+        border-left: 4px solid #22c55e !important;
+      }
+
+      a.dashboard-subtile-link.dashboard-subtile--document {
+        border-left: 4px solid #2563eb !important;
       }
 
       .section-title {
-        color: var(--app-blue-900);
+        color: var(--saas-text);
         font-weight: 700;
+        letter-spacing: -0.025em;
+      }
+
+      .section-title .bi {
+        color: var(--saas-text-muted);
+      }
+
+      .section-title a:hover {
+        color: var(--saas-text) !important;
+        opacity: 0.8;
+      }
+
+      .saas-hint {
+        font-size: 0.8125rem;
+        color: var(--saas-text-muted);
+        line-height: 1.5;
+        padding: 0.65rem 0.9rem;
+        background: #f9fafb;
+        border-radius: var(--saas-radius-sm);
+        border: 1px solid var(--saas-border);
       }
 
       .icon {
-        color: var(--app-blue-700);
+        color: var(--saas-text-muted);
+      }
+
+      .saas-body .alert {
+        border: none;
+        border-radius: var(--saas-radius-sm);
+        box-shadow: var(--saas-shadow-xs);
       }
 
       .login-form input[type="text"],
       .login-form input[type="password"],
       .login-form input[type="email"] {
         width: 100%;
-        border: 1px solid #c8d7f5;
-        border-radius: 12px;
+        border: 1px solid var(--saas-border-strong);
+        border-radius: var(--saas-radius-sm);
         padding: 0.52rem 0.8rem;
       }
 
       .login-form input:focus {
         outline: none;
-        border-color: var(--app-blue-700);
-        box-shadow: 0 0 0 0.25rem rgba(31, 110, 212, 0.2);
+        border-color: #9ca3af;
+        box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.06);
       }
 
       .auth-login-page {
-        background:
-          radial-gradient(circle at 0% 0%, rgba(47, 125, 225, 0.14), transparent 30%),
-          radial-gradient(circle at 100% 0%, rgba(17, 51, 95, 0.1), transparent 35%),
-          #f5f9ff;
+        background: #ffffff !important;
       }
 
       .auth-login-page .app-shell {
-        max-width: 1000px;
+        max-width: 1080px;
       }
 
       .auth-login-wrap {
-        min-height: calc(100vh - 130px);
+        min-height: calc(100vh - 120px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -235,19 +642,20 @@
 
       .auth-login-card {
         width: 100%;
-        max-width: 460px;
-        border: 1px solid #dce7fb;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 20px 44px rgba(26, 66, 124, 0.14);
+        max-width: 440px;
+        border: 1px solid var(--saas-border);
+        border-radius: var(--saas-radius-lg);
+        background: #ffffff;
+        box-shadow: var(--saas-shadow-lg);
       }
 
       .auth-login-badge {
         width: 52px;
         height: 52px;
         border-radius: 14px;
-        background: linear-gradient(135deg, #2f7de1, #4c97f7);
-        color: #fff;
+        background: #f3f4f6;
+        border: 1px solid var(--saas-border);
+        color: var(--saas-text-secondary);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -255,7 +663,7 @@
       }
 
       .auth-login-subtitle {
-        color: #5c7194;
+        color: var(--saas-text-muted);
       }
 
       .auth-input-wrap {
@@ -267,58 +675,105 @@
         left: 0.85rem;
         top: 50%;
         transform: translateY(-50%);
-        color: #6c82a6;
+        color: var(--saas-text-muted);
       }
 
       .auth-input-wrap input {
         width: 100%;
-        border: 1px solid #cddaf3;
-        border-radius: 12px;
+        border: 1px solid var(--saas-border-strong);
+        border-radius: var(--saas-radius-sm);
         padding: 0.62rem 0.8rem 0.62rem 2.35rem;
         background: #fff;
       }
 
       .auth-input-wrap input:focus {
         outline: none;
-        border-color: var(--app-blue-700);
-        box-shadow: 0 0 0 0.25rem rgba(47, 125, 225, 0.18);
+        border-color: #9ca3af;
+        box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.06);
+      }
+
+      a:focus-visible,
+      button:focus-visible,
+      .btn:focus-visible {
+        outline: 2px solid #9ca3af;
+        outline-offset: 2px;
+      }
+
+      .saas-body .btn-primary:focus-visible {
+        outline-color: #fff;
+        box-shadow: 0 0 0 2px #1e5aa5;
+      }
+
+      .saas-body .pagination .page-link {
+        border-color: var(--saas-border);
+        color: var(--saas-text-secondary);
+        font-weight: 500;
+        font-size: 0.875rem;
+        padding: 0.45rem 0.85rem;
+        border-radius: var(--saas-radius-sm);
+      }
+
+      .saas-body .pagination .page-link:hover {
+        background: #f3f4f6;
+        color: var(--saas-text);
+        border-color: var(--saas-border-strong);
+      }
+
+      .saas-body .pagination .page-item.active .page-link {
+        background: #374151;
+        border-color: #374151;
+        color: #fff;
       }
     </style>
   </head>
-  <body class="{% block body_class %}{% endblock %}">
+  <body class="saas-body {% block body_class %}{% endblock %}">
     <nav class="navbar navbar-expand-lg navbar-light app-navbar">
       <div class="container">
-        <a class="navbar-brand" href="{% url 'fournisseurs:dashboard' %}">Fournisseurs</a>
+        <a class="navbar-brand saas-brand" href="{% url 'fournisseurs:dashboard' %}">Clean Base</a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <button
+          class="navbar-toggler border-0 shadow-none"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#nav"
+          aria-controls="nav"
+          aria-expanded="false"
+          aria-label="Menu"
+        >
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="nav">
-          <ul class="navbar-nav me-auto">
+          <ul class="navbar-nav me-auto ms-lg-3 gap-lg-1">
             {% if user.is_authenticated %}
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'fournisseurs:fournisseurs_list' %}">Liste fournisseurs</a>
+                <a class="nav-link" href="{% url 'fournisseurs:fournisseurs_list' %}">Fournisseurs</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'fournisseurs:domaines_list' %}">Domaines</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'fournisseurs:dashboard' %}">Tableau de bord</a>
+              </li>
             {% endif %}
           </ul>
 
-          <ul class="navbar-nav">
+          <ul class="navbar-nav align-items-lg-center gap-1">
             {% if user.is_authenticated %}
               <li class="nav-item">
-                <span class="nav-link d-inline-flex align-items-center gap-2">
+                <span class="nav-link saas-nav-user d-inline-flex align-items-center gap-2">
                   <i class="bi bi-person-circle"></i>
                   <span>{% firstof user.get_full_name user.username %}</span>
                 </span>
               </li>
               <li class="nav-item">
-                <a class="nav-link d-inline-flex align-items-center gap-2" href="{% url 'logout' %}">
-                  <i class="bi bi-box-arrow-right"></i>
-                  <span>Déconnexion</span>
-                </a>
+                <form method="post" action="{% url 'logout' %}" class="d-inline-flex align-items-center m-0">
+                  {% csrf_token %}
+                  <button type="submit" class="nav-link bg-transparent border-0 d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Déconnexion</span>
+                  </button>
+                </form>
               </li>
             {% else %}
               <li class="nav-item">
@@ -336,9 +791,9 @@
     <main class="container app-shell py-4">
       {% if messages %}
         {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
           </div>
         {% endfor %}
       {% endif %}
@@ -353,4 +808,3 @@
     ></script>
   </body>
 </html>
-

@@ -3,7 +3,15 @@ from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html
 
-from fournisseurs.models import DomaineActivite, Fournisseur
+from fournisseurs.models import DomaineActivite, Fournisseur, UserProfile
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "must_change_password")
+    list_filter = ("must_change_password",)
+    search_fields = ("user__username", "user__email")
+    autocomplete_fields = ("user",)
 
 
 @admin.register(DomaineActivite)

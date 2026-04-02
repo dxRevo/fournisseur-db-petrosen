@@ -1,64 +1,182 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Fournisseurs{% endblock %}
+{% block title %}Tableau de bord · Clean Base{% endblock %}
 
 {% block content %}
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="h3 mb-0 section-title d-inline-flex align-items-center gap-2">
-      <i class="bi bi-speedometer2"></i>
-      <span>Dashboard</span>
-    </h1>
-    <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:fournisseur_create' %}">
-      <i class="bi bi-plus-circle"></i>
+  <header class="saas-page-header">
+    <div>
+      <h1 class="saas-page-title">
+        <i class="bi bi-speedometer2" aria-hidden="true"></i>
+        <span>Tableau de bord</span>
+      </h1>
+      <p class="saas-page-sub">Vue d’ensemble du pipeline d’agrément et des dossiers à traiter.</p>
+    </div>
+    <a class="btn btn-primary d-inline-flex align-items-center gap-2 px-3" href="{% url 'fournisseurs:fournisseur_create' %}">
+      <i class="bi bi-plus-lg"></i>
       <span>Nouveau fournisseur</span>
     </a>
-  </div>
+  </header>
 
-  <div class="row g-3">
-    <div class="col-md-3">
-      <div class="card metric-card h-100">
-        <div class="card-body">
-          <div class="metric-label">Total</div>
-          <div class="fs-3 fw-bold metric-value d-inline-flex align-items-center gap-2">
-            <i class="bi bi-collection"></i>
+  <div class="row g-4">
+    <div class="col-md-6 col-xl-3">
+      <a href="{% url 'fournisseurs:fournisseurs_list' %}" class="card metric-card metric-card--kpi-total h-100 dashboard-metric-link">
+        <div class="card-body saas-card-body-pad">
+          <div class="metric-label">Total fournisseurs</div>
+          <div class="fs-2 fw-bold metric-value d-inline-flex align-items-center gap-2">
+            <i class="bi bi-buildings"></i>
             <span>{{ stats.total }}</span>
           </div>
         </div>
-      </div>
+      </a>
     </div>
-    <div class="col-md-3">
-      <div class="card metric-card h-100">
-        <div class="card-body">
+    <div class="col-md-6 col-xl-3">
+      <a href="{% url 'fournisseurs:fournisseurs_list' %}?statut=en_attente" class="card metric-card metric-card--kpi-attente h-100 dashboard-metric-link">
+        <div class="card-body saas-card-body-pad">
           <div class="metric-label">En attente</div>
-          <div class="fs-3 fw-bold metric-value d-inline-flex align-items-center gap-2">
+          <div class="fs-2 fw-bold metric-value d-inline-flex align-items-center gap-2">
             <i class="bi bi-hourglass-split"></i>
             <span>{{ stats.en_attente }}</span>
           </div>
         </div>
-      </div>
+      </a>
     </div>
-    <div class="col-md-3">
-      <div class="card metric-card h-100">
-        <div class="card-body">
+    <div class="col-md-6 col-xl-3">
+      <a href="{% url 'fournisseurs:fournisseurs_list' %}?statut=valide" class="card metric-card metric-card--kpi-valide h-100 dashboard-metric-link">
+        <div class="card-body saas-card-body-pad">
           <div class="metric-label">Validés</div>
-          <div class="fs-3 fw-bold metric-value d-inline-flex align-items-center gap-2">
-            <i class="bi bi-check2-circle"></i>
+          <div class="fs-2 fw-bold metric-value d-inline-flex align-items-center gap-2">
+            <i class="bi bi-check-circle"></i>
             <span>{{ stats.valide }}</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <a href="{% url 'fournisseurs:fournisseurs_list' %}?statut=refuse" class="card metric-card metric-card--kpi-refuse h-100 dashboard-metric-link">
+        <div class="card-body saas-card-body-pad">
+          <div class="metric-label">Refusés</div>
+          <div class="fs-2 fw-bold metric-value d-inline-flex align-items-center gap-2">
+            <i class="bi bi-x-circle"></i>
+            <span>{{ stats.refuse }}</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-0">
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="card-body saas-card-body-pad">
+          <h2 class="h5 section-title mb-4 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-diagram-3"></i>
+            <a href="{% url 'fournisseurs:fournisseurs_list' %}?statut=en_attente" class="text-decoration-none text-reset">Pipeline d’agrément</a>
+          </h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <a href="{% url 'fournisseurs:fournisseurs_list' %}?statut=valide" class="p-4 d-block text-decoration-none text-body dashboard-subtile-link dashboard-subtile--validation">
+                <div class="small text-muted">Taux de validation</div>
+                <div class="fs-3 fw-bold mt-1">{{ stats.validation_rate }}%</div>
+              </a>
+            </div>
+            <div class="col-md-6">
+              <a href="{% url 'fournisseurs:fournisseurs_list' %}?doc=1" class="p-4 d-block text-decoration-none text-body dashboard-subtile-link dashboard-subtile--document">
+                <div class="small text-muted">Avec demande d’agrément</div>
+                <div class="fs-3 fw-bold mt-1">{{ stats.document_rate }}%</div>
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card metric-card h-100">
-        <div class="card-body">
-          <div class="metric-label">Refusés</div>
-          <div class="fs-3 fw-bold metric-value d-inline-flex align-items-center gap-2">
-            <i class="bi bi-x-circle"></i>
-            <span>{{ stats.refuse }}</span>
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-body saas-card-body-pad">
+          <h2 class="h5 section-title mb-4 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-clipboard2-check"></i>
+            <a href="{% url 'fournisseurs:fournisseurs_list' %}?incomplet=1" class="text-decoration-none text-reset">Qualité des dossiers</a>
+          </h2>
+          <div class="list-group list-group-flush saas-quality-list">
+            <a href="{% url 'fournisseurs:fournisseurs_list' %}?doc=1" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-start-0 border-end-0 rounded-0">
+              <span>Avec document</span>
+              <span class="badge rounded-pill badge-qualite-compte-doc">{{ quality.with_document }}</span>
+            </a>
+            <a href="{% url 'fournisseurs:fournisseurs_list' %}?incomplet=1" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-start-0 border-end-0 rounded-0">
+              <span>Fiches incomplètes</span>
+              <span class="badge rounded-pill badge-qualite-compte-incomplet">{{ quality.incomplete }}</span>
+            </a>
+            <a href="{% url 'fournisseurs:fournisseurs_list' %}?incomplet=1" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-start-0 border-end-0 border-bottom-0 rounded-0">
+              <span>Part incomplète</span>
+              <span class="badge rounded-pill badge-qualite-taux-incomplet">{{ stats.incomplete_rate }}%</span>
+            </a>
           </div>
         </div>
       </div>
     </div>
   </div>
-{% endblock %}
 
+  <div class="card mt-4">
+    <div class="card-body saas-card-body-pad">
+      <h2 class="h5 section-title mb-2 d-inline-flex align-items-center gap-2">
+        <i class="bi bi-list-check"></i>
+        <a href="{% url 'fournisseurs:fournisseurs_list' %}?statut=en_attente" class="text-decoration-none text-reset">À traiter maintenant</a>
+      </h2>
+      <p class="saas-hint mb-4">
+        Les dossiers à <strong>100&nbsp;%</strong> de complétude sont mis en avant en tête de liste et surlignés.
+      </p>
+      <div class="table-responsive rounded-3 border" style="border-color: var(--saas-border) !important;">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Fournisseur</th>
+              <th>Date de création</th>
+              <th>PDF agrément</th>
+              <th>Complétude</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in to_process %}
+              <tr class="{% if f.completeness == 100 %}dashboard-row-complete{% endif %}">
+                <td>
+                  <a href="{% url 'fournisseurs:fournisseur_detail' f.pk %}" class="fw-semibold text-decoration-none" style="color: var(--saas-text);">{{ f.raison_sociale }}</a>
+                </td>
+                <td class="text-secondary small">{{ f.date_creation|date:"d/m/Y" }}</td>
+                <td>
+                  {% if f.has_pdf %}
+                    <span class="badge rounded-pill badge-qualite-doc-oui">Oui</span>
+                  {% else %}
+                    <span class="badge rounded-pill badge-qualite-doc-non">Non</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge rounded-pill {% if f.completeness == 100 %}badge-qualite-complet-ok{% elif f.completeness >= 50 %}badge-qualite-complet-moyen{% else %}badge-qualite-complet-faible{% endif %}">{{ f.completeness }}%</span>
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a class="btn btn-outline-primary" href="{% url 'fournisseurs:fournisseur_detail' f.pk %}">Voir</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'fournisseurs:fournisseur_update' f.pk %}">Modifier</a>
+                  </div>
+                  <form method="post" action="{% url 'fournisseurs:fournisseur_quick_status_update' f.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="valide">
+                    <button type="submit" class="btn btn-sm btn-success">Valider</button>
+                  </form>
+                  <form method="post" action="{% url 'fournisseurs:fournisseur_quick_status_update' f.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="refuse">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Refuser</button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-muted py-4 text-center">Aucun dossier en attente pour le moment.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

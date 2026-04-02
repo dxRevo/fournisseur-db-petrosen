@@ -1,4 +1,24 @@
+from django.conf import settings
 from django.db import models
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+    must_change_password = models.BooleanField(
+        default=False,
+        verbose_name="doit changer le mot de passe",
+    )
+
+    class Meta:
+        verbose_name = "Profil utilisateur"
+        verbose_name_plural = "Profils utilisateur"
+
+    def __str__(self) -> str:
+        return f"Profil de {self.user}"
 
 
 class DomaineActivite(models.Model):
@@ -36,11 +56,11 @@ class Fournisseur(models.Model):
         related_name="fournisseurs_crees",
     )
 
-    contact = models.CharField(max_length=255)
-    fonction = models.CharField(max_length=255)
+    contact = models.CharField(max_length=255, blank=True)
+    fonction = models.CharField(max_length=255, blank=True)
     telephone = models.CharField(max_length=50, blank=True)
     adresse = models.TextField(blank=True)
-    email = models.EmailField(blank=True, db_index=True)
+    email = models.CharField(max_length=254, blank=True, db_index=True)
     modalites_paiement = models.CharField(max_length=255, blank=True)
     ninea = models.CharField(max_length=100, blank=True)
     rc = models.CharField(max_length=100, blank=True)

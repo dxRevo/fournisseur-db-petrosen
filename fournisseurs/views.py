@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q
+from django.db.models import Case, Count, F, IntegerField, Q, Value, When
+from django.db.models.functions import Cast, Round
 from django.http import FileResponse, Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
+from django.views.decorators.http import require_POST
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -18,18 +20,106 @@ from fournisseurs.forms import DomaineActiviteForm, FournisseurForm
 from fournisseurs.models import DomaineActivite, Fournisseur
 import os
 
+# Champs pris en compte pour le taux : raison_sociale, domaines (≥1), contact,
+# fonction, téléphone, adresse, email, modalités, NINEA, RC, PDF d’agrément.
+TOTAL_COMPLETION_FIELDS = 11
+
+
+def _fournisseur_filled_sum_expr():
+    pdf_bit = Case(
+        When(Q(demande_agrement__isnull=True) | Q(demande_agrement=""), then=Value(0)),
+        default=Value(1),
+        output_field=IntegerField(),
+    )
+    return (
+        Case(When(raison_sociale__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + Case(
+            When(ndomaines__gt=0, then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+        + Case(When(contact__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + Case(When(fonction__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + Case(When(telephone__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + Case(When(adresse__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + Case(When(email__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + Case(When(modalites_paiement__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + Case(When(ninea__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + Case(When(rc__gt="", then=Value(1)), default=Value(0), output_field=IntegerField())
+        + pdf_bit
+    )
+
+
+def _fournisseur_completeness_percent_expr():
+    return Cast(
+        Round(F("filled_sum") * 100.0 / Value(float(TOTAL_COMPLETION_FIELDS)), 0),
+        IntegerField(),
+    )
+
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "fournisseurs/dashboard.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        total = Fournisseur.objects.count()
+        en_attente = Fournisseur.objects.filter(statut=Fournisseur.Statut.EN_ATTENTE).count()
+        valide = Fournisseur.objects.filter(statut=Fournisseur.Statut.VALIDE).count()
+        refuse = Fournisseur.objects.filter(statut=Fournisseur.Statut.REFUSE).count()
+
+        with_document = Fournisseur.objects.exclude(
+            Q(demande_agrement__isnull=True) | Q(demande_agrement="")
+        ).count()
+
+        incomplets = (
+            Fournisseur.objects.annotate(ndomaines=Count("domaines", distinct=True))
+            .annotate(filled_sum=_fournisseur_filled_sum_expr())
+            .filter(filled_sum__lt=TOTAL_COMPLETION_FIELDS)
+            .count()
+        )
+
+        validation_rate = round((valide / total) * 100, 1) if total else 0
+        document_rate = round((with_document / total) * 100, 1) if total else 0
+        incomplete_rate = round((incomplets / total) * 100, 1) if total else 0
+
+        has_pdf = Case(
+            When(Q(demande_agrement__isnull=True) | Q(demande_agrement=""), then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        )
+
+        to_process = (
+            Fournisseur.objects.filter(statut=Fournisseur.Statut.EN_ATTENTE)
+            .select_related("created_by")
+            .annotate(ndomaines=Count("domaines", distinct=True))
+            .annotate(filled_sum=_fournisseur_filled_sum_expr())
+            .annotate(completeness=_fournisseur_completeness_percent_expr())
+            .annotate(has_pdf=has_pdf)
+            .order_by(
+                Case(
+                    When(Q(has_pdf=1) & Q(filled_sum=TOTAL_COMPLETION_FIELDS), then=Value(1)),
+                    When(has_pdf=1, then=Value(2)),
+                    default=Value(3),
+                    output_field=IntegerField(),
+                ),
+                "date_creation",
+            )[:20]
+        )
+
         context["stats"] = {
-            "total": Fournisseur.objects.count(),
-            "en_attente": Fournisseur.objects.filter(statut=Fournisseur.Statut.EN_ATTENTE).count(),
-            "valide": Fournisseur.objects.filter(statut=Fournisseur.Statut.VALIDE).count(),
-            "refuse": Fournisseur.objects.filter(statut=Fournisseur.Statut.REFUSE).count(),
+            "total": total,
+            "en_attente": en_attente,
+            "valide": valide,
+            "refuse": refuse,
+            "validation_rate": validation_rate,
+            "document_rate": document_rate,
+            "incomplete_rate": incomplete_rate,
         }
+        context["quality"] = {
+            "with_document": with_document,
+            "incomplete": incomplets,
+        }
+        context["to_process"] = to_process
         return context
 
 
@@ -113,6 +203,9 @@ class FournisseurListView(LoginRequiredMixin, ListView):
 
         query = (self.request.GET.get("q") or "").strip()
         domaine_id = (self.request.GET.get("domaine") or "").strip()
+        statut = (self.request.GET.get("statut") or "").strip()
+        doc = (self.request.GET.get("doc") or "").strip()
+        incomplet = (self.request.GET.get("incomplet") or "").strip()
 
         if query:
             qs = qs.filter(
@@ -122,14 +215,36 @@ class FournisseurListView(LoginRequiredMixin, ListView):
         if domaine_id:
             qs = qs.filter(domaines__id=domaine_id)
 
-        # Filtrage via ManyToMany => risque de doublons.
-        return qs.distinct() if (query or domaine_id) else qs
+        if statut in (
+            Fournisseur.Statut.EN_ATTENTE,
+            Fournisseur.Statut.VALIDE,
+            Fournisseur.Statut.REFUSE,
+        ):
+            qs = qs.filter(statut=statut)
+
+        if doc == "1":
+            qs = qs.exclude(
+                Q(demande_agrement__isnull=True) | Q(demande_agrement="")
+            )
+
+        if incomplet == "1":
+            qs = (
+                qs.annotate(ndomaines=Count("domaines", distinct=True))
+                .annotate(filled_sum=_fournisseur_filled_sum_expr())
+                .filter(filled_sum__lt=TOTAL_COMPLETION_FIELDS)
+            )
+
+        need_distinct = bool(query or domaine_id)
+        return qs.distinct() if need_distinct else qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context["q"] = (self.request.GET.get("q") or "").strip()
         context["domaine_id"] = (self.request.GET.get("domaine") or "").strip()
+        context["statut"] = (self.request.GET.get("statut") or "").strip()
+        context["doc"] = (self.request.GET.get("doc") or "").strip()
+        context["incomplet"] = (self.request.GET.get("incomplet") or "").strip()
 
         # Données pour le dropdown "Domaine"
         context["domaines"] = DomaineActivite.objects.all().order_by("nom")
@@ -210,3 +325,18 @@ class DemandeAgrementFileView(LoginRequiredMixin, View):
         response = FileResponse(file_handle, content_type="application/pdf")
         response["Content-Disposition"] = f'inline; filename="{filename}"'
         return response
+
+
+@require_POST
+def fournisseur_quick_status_update(request, pk):
+    fournisseur = get_object_or_404(Fournisseur, pk=pk)
+    status = request.POST.get("status")
+    allowed = {Fournisseur.Statut.VALIDE, Fournisseur.Statut.REFUSE}
+    if status not in allowed:
+        messages.error(request, "Statut invalide.")
+        return redirect("fournisseurs:dashboard")
+
+    fournisseur.statut = status
+    fournisseur.save(update_fields=["statut"])
+    messages.success(request, f"Statut mis a jour: {fournisseur.get_statut_display()}.")
+    return redirect("fournisseurs:dashboard")

@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
+from fournisseurs.views_auth import AppPasswordChangeView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(
@@ -26,5 +28,17 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path(
+        "compte/mot-de-passe/",
+        AppPasswordChangeView.as_view(),
+        name="password_change",
+    ),
+    path(
+        "compte/mot-de-passe/termine/",
+        auth_views.PasswordChangeDoneView.as_view(
+            template_name="registration/password_change_done.html"
+        ),
+        name="password_change_done",
+    ),
     path("", include("fournisseurs.urls")),
 ]

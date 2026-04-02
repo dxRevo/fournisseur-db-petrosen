@@ -1,20 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}Domaines d’activité{% endblock %}
+{% block title %}Domaines · Clean Base{% endblock %}
 
 {% block content %}
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="h3 mb-0 section-title d-inline-flex align-items-center gap-2">
-      <i class="bi bi-diagram-3"></i>
-      <span>Domaines d’activité</span>
-    </h1>
-    <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:domaine_create' %}">
-      <i class="bi bi-plus-circle"></i>
+  <header class="saas-page-header">
+    <div>
+      <h1 class="saas-page-title">
+        <i class="bi bi-diagram-3" aria-hidden="true"></i>
+        <span>Domaines d’activité</span>
+      </h1>
+      <p class="saas-page-sub">Référentiel utilisé pour classer les fournisseurs.</p>
+    </div>
+    <a class="btn btn-primary d-inline-flex align-items-center gap-2 px-3" href="{% url 'fournisseurs:domaine_create' %}">
+      <i class="bi bi-plus-lg"></i>
       <span>Ajouter</span>
     </a>
-  </div>
+  </header>
 
-  <form class="row g-2 align-items-end mb-3" method="get">
+  <div class="card mb-4">
+    <div class="card-body saas-card-body-pad">
+  <form class="row g-3 align-items-end" method="get">
     <div class="col-md-10">
       <label class="form-label">Recherche</label>
       <input
@@ -32,9 +37,11 @@
       </button>
     </div>
     <div class="col-12 d-flex justify-content-end">
-      <a class="btn btn-link p-0" href="{% url 'fournisseurs:domaines_list' %}">Réinitialiser</a>
+      <a class="btn btn-link link-secondary text-decoration-none p-0" href="{% url 'fournisseurs:domaines_list' %}">Réinitialiser</a>
     </div>
   </form>
+    </div>
+  </div>
 
   <div class="card table-card">
     <div class="table-responsive">

@@ -45,7 +45,7 @@ class FournisseurForm(forms.ModelForm):
             "fonction": forms.TextInput(attrs={"class": "form-control"}),
             "telephone": forms.TextInput(attrs={"class": "form-control"}),
             "adresse": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "email": forms.TextInput(attrs={"class": "form-control"}),
             "modalites_paiement": forms.TextInput(attrs={"class": "form-control"}),
             "ninea": forms.TextInput(attrs={"class": "form-control"}),
             "rc": forms.TextInput(attrs={"class": "form-control"}),
@@ -55,6 +55,8 @@ class FournisseurForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["contact"].required = False
+        self.fields["fonction"].required = False
         # Plus lisible : titres/labels côté template.
         self.fields["demande_agrement"].required = False
 
@@ -63,9 +65,7 @@ class FournisseurForm(forms.ModelForm):
         return valeur.strip()
 
     def clean_email(self):
-        email = self.cleaned_data.get("email") or ""
-        email = email.strip()
-        return email.lower() if email else email
+        return (self.cleaned_data.get("email") or "").strip()
 
     def clean_demande_agrement(self):
         f = self.cleaned_data.get("demande_agrement")
