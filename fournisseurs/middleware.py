@@ -12,8 +12,6 @@ class ForcePasswordChangeMiddleware:
     def __call__(self, request):
         if not request.user.is_authenticated:
             return self.get_response(request)
-        if request.user.is_superuser:
-            return self.get_response(request)
 
         path = request.path
         if path.startswith("/login") or path.startswith("/logout"):
