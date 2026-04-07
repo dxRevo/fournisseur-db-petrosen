@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Critères d'évaluation{% endblock %}
+
+{% block content %}
+  <header class="saas-page-header">
+    <div>
+      <h1 class="saas-page-title">
+        <i class="bi bi-sliders"></i>
+        <span>Critères d'évaluation annuelle</span>
+      </h1>
+      <p class="saas-page-sub mb-0">Mettez à jour les coefficients (1 à 5), l'ordre et l'activation des critères.</p>
+    </div>
+    <a class="btn btn-outline-primary" href="{% url 'fournisseurs:fournisseurs_classement' %}">
+      Voir le classement
+    </a>
+  </header>
+
+  <div class="card">
+    <div class="card-body saas-card-body-pad">
+      <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Critère</th>
+                <th style="width: 130px;">Coefficient</th>
+                <th style="width: 120px;">Ordre</th>
+                <th style="width: 120px;">Actif</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for form in formset %}
+                <tr>
+                  <td>
+                    {{ form.id }}
+                    {{ form.libelle }}
+                    {% if form.libelle.errors %}
+                      <div class="text-danger small mt-1">{{ form.libelle.errors|join:", " }}</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{ form.coefficient }}
+                    {% if form.coefficient.errors %}
+                      <div class="text-danger small mt-1">{{ form.coefficient.errors|join:", " }}</div>
+                    {% endif %}
+                  </td>
+                  <td>{{ form.ordre }}</td>
+                  <td class="text-center">{{ form.actif }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

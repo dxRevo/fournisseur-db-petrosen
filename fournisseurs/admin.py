@@ -3,7 +3,14 @@ from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html
 
-from fournisseurs.models import DomaineActivite, Fournisseur, UserProfile
+from fournisseurs.models import (
+    CritereEvaluation,
+    DomaineActivite,
+    EvaluationAnnuelle,
+    EvaluationAnnuelleLigne,
+    Fournisseur,
+    UserProfile,
+)
 
 
 @admin.register(UserProfile)
@@ -63,3 +70,29 @@ class FournisseurAdmin(admin.ModelAdmin):
             return "—"
         url = reverse("fournisseurs:demande_agrement", args=[obj.pk])
         return format_html('<a href="{}" target="_blank" rel="noopener">Ouvrir</a>', url)
+
+
+class EvaluationAnnuelleLigneInline(admin.TabularInline):
+    model = EvaluationAnnuelleLigne
+    extra = 0
+
+
+@admin.register(CritereEvaluation)
+class CritereEvaluationAdmin(admin.ModelAdmin):
+    list_display = ("libelle", "code", "coefficient", "ordre", "actif")
+    list_filter = ("actif", "coefficient")
+    search_fields = ("libelle", "code")
+    ordering = ("ordre", "libelle")
+
+
+@admin.register(EvaluationAnnuelle)
+class EvaluationAnnuelleAdmin(admin.ModelAdmin):
+    list_display = ("fournisseur", "annee", "created_by", "date_creation", "note_finale_display")
+    list_filter = ("annee",)
+    search_fields = ("fournisseur__raison_sociale",)
+    autocomplete_fields = ("fournisseur", "created_by")
+    inlines = (EvaluationAnnuelleLigneInline,)
+
+    @admin.display(description="Note finale")
+    def note_finale_display(self, obj: EvaluationAnnuelle):
+        return f"{obj.note_finale}/10"

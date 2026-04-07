@@ -20,6 +20,10 @@
       </p>
     </div>
     <div class="text-end actions-group">
+      <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{% url 'fournisseurs:fournisseur_evaluation_create' fournisseur.pk %}">
+        <i class="bi bi-clipboard-check"></i>
+        <span>Évaluer annuellement</span>
+      </a>
       <a class="btn btn-outline-primary btn-icon" href="{% url 'fournisseurs:fournisseur_update' fournisseur.pk %}" aria-label="Modifier" title="Modifier">
         <i class="bi bi-pencil-square"></i>
       </a>
@@ -108,6 +112,51 @@
               <span class="badge rounded-pill badge-qualite-doc-non">Non fourni</span>
             {% endif %}
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body saas-card-body-pad">
+          <h2 class="h5 section-title mb-4 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span>Évaluation annuelle</span>
+          </h2>
+          {% if last_evaluation %}
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+              <div class="text-muted">
+                Dernière évaluation : {{ last_evaluation.annee }}
+              </div>
+              <span class="badge rounded-pill bg-primary fs-6">Note finale : {{ last_evaluation.note_finale }}/10</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Critère</th>
+                    <th class="text-center">Coefficient</th>
+                    <th class="text-center">Note</th>
+                    <th class="text-end">Note pondérée</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in last_evaluation_rows %}
+                    <tr>
+                      <td>{{ row.line.critere.libelle }}</td>
+                      <td class="text-center">{{ row.line.critere.coefficient }}</td>
+                      <td class="text-center">{{ row.line.note|floatformat:2 }}</td>
+                      <td class="text-end">{{ row.note_ponderee|floatformat:2 }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">Aucune évaluation annuelle saisie pour le moment.</p>
+          {% endif %}
         </div>
       </div>
     </div>

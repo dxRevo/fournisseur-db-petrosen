@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Évaluation annuelle - {{ fournisseur.raison_sociale }}{% endblock %}
+
+{% block content %}
+  <header class="saas-page-header">
+    <div>
+      <h1 class="saas-page-title">
+        <i class="bi bi-clipboard-check" aria-hidden="true"></i>
+        <span>Évaluation annuelle</span>
+      </h1>
+      <p class="saas-page-sub mb-0">
+        Fournisseur : {{ fournisseur.raison_sociale }}
+      </p>
+    </div>
+    <div class="text-end">
+      <a class="btn btn-outline-secondary" href="{% url 'fournisseurs:fournisseur_detail' fournisseur.pk %}">
+        Retour au détail
+      </a>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="card-body saas-card-body-pad">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-4">
+          <label for="id_annee" class="form-label">Année</label>
+          <input
+            type="number"
+            id="id_annee"
+            name="annee"
+            value="{{ annee }}"
+            min="2000"
+            max="2100"
+            class="form-control"
+            required
+          >
+          <div class="form-text">
+            {{ criteres_count }} critères actifs, somme des coefficients : {{ total_coeff }}.
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Critère</th>
+                <th class="text-center">Coefficient</th>
+                <th class="text-center">Note (0 à 10)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in form.iter_fields %}
+                <tr>
+                  <td>
+                    <div class="fw-semibold">{{ item.critere.libelle }}</div>
+                    {% if item.field.errors %}
+                      <div class="text-danger small">{{ item.field.errors|join:", " }}</div>
+                    {% endif %}
+                  </td>
+                  <td class="text-center">{{ item.critere.coefficient }}</td>
+                  <td class="text-center" style="max-width: 160px;">
+                    {{ item.field }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-check2-circle"></i>
+            <span>Enregistrer l’évaluation</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

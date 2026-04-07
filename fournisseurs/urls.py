@@ -1,12 +1,15 @@
 from django.urls import path
 
 from fournisseurs.views import (
+    CritereEvaluationManageView,
     DashboardView,
     DomaineCreateView,
     DomaineDeleteView,
     DomaineListView,
     DomaineUpdateView,
     DemandeAgrementFileView,
+    FournisseurEvaluationCreateView,
+    FournisseurClassementView,
     FournisseurCreateView,
     FournisseurDeleteView,
     FournisseurDetailView,
@@ -29,6 +32,11 @@ urlpatterns = [
     ),
     path("fournisseurs/<int:pk>/modifier/", FournisseurUpdateView.as_view(), name="fournisseur_update"),
     path(
+        "fournisseurs/<int:pk>/evaluation-annuelle/",
+        FournisseurEvaluationCreateView.as_view(),
+        name="fournisseur_evaluation_create",
+    ),
+    path(
         "fournisseurs/<int:pk>/status/",
         fournisseur_quick_status_update,
         name="fournisseur_quick_status_update",
@@ -38,5 +46,15 @@ urlpatterns = [
     path("domaines/creer/", DomaineCreateView.as_view(), name="domaine_create"),
     path("domaines/<int:pk>/modifier/", DomaineUpdateView.as_view(), name="domaine_update"),
     path("domaines/<int:pk>/supprimer/", DomaineDeleteView.as_view(), name="domaine_delete"),
+    path(
+        "evaluations/criteres/",
+        CritereEvaluationManageView.as_view(),
+        name="criteres_evaluation_manage",
+    ),
+    path(
+        "evaluations/classement/",
+        FournisseurClassementView.as_view(),
+        name="fournisseurs_classement",
+    ),
 ]
 

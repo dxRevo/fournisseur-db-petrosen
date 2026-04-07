@@ -121,6 +121,8 @@ STATIC_URL = 'static/'
 # Fichiers uploadés (demande d'agrément)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+# Désactive la limite Django sur la taille du body de requête (incluant uploads).
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
 # Par défaut, utilisé par l'admin / migrations
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

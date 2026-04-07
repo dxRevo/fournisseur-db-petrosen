@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import os
+from decimal import Decimal
 
 from django import forms
+from django.forms import modelformset_factory
 
-from fournisseurs.models import DomaineActivite, Fournisseur
+from fournisseurs.models import (
+    CritereEvaluation,
+    DomaineActivite,
+    EvaluationAnnuelleLigne,
+    Fournisseur,
+)
 
 
 class DomaineActiviteForm(forms.ModelForm):
@@ -83,4 +90,73 @@ class FournisseurForm(forms.ModelForm):
             raise forms.ValidationError("Le fichier doit être un PDF (application/pdf).")
 
         return f
+
+
+class EvaluationAnnuelleForm(forms.Form):
+    def __init__(self, *args, criteres=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.criteres = list(criteres or [])
+        for critere in self.criteres:
+            field_name = f"critere_{critere.pk}"
+            self.fields[field_name] = forms.DecimalField(
+                label=critere.libelle,
+                min_value=Decimal("0"),
+                max_value=Decimal("10"),
+                decimal_places=2,
+                max_digits=4,
+                widget=forms.NumberInput(
+                    attrs={
+                        "class": "form-control",
+                        "step": "0.01",
+                        "min": "0",
+                        "max": "10",
+                    }
+                ),
+            )
+
+    def iter_fields(self):
+        for critere in self.criteres:
+            yield {
+                "critere": critere,
+                "field": self[f"critere_{critere.pk}"],
+            }
+
+    def save_lines(self, evaluation):
+        lines = []
+        for critere in self.criteres:
+            note = self.cleaned_data[f"critere_{critere.pk}"]
+            lines.append(
+                EvaluationAnnuelleLigne(
+                    evaluation=evaluation,
+                    critere=critere,
+                    note=note,
+                )
+            )
+        EvaluationAnnuelleLigne.objects.bulk_create(lines)
+
+
+def get_criteres_actifs():
+    return CritereEvaluation.objects.filter(actif=True).order_by("ordre", "libelle")
+
+
+class CritereEvaluationForm(forms.ModelForm):
+    class Meta:
+        model = CritereEvaluation
+        fields = ["libelle", "coefficient", "ordre", "actif"]
+        widgets = {
+            "libelle": forms.TextInput(attrs={"class": "form-control"}),
+            "coefficient": forms.NumberInput(
+                attrs={"class": "form-control", "min": 1, "max": 5}
+            ),
+            "ordre": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
+            "actif": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+
+CritereEvaluationFormSet = modelformset_factory(
+    CritereEvaluation,
+    form=CritereEvaluationForm,
+    extra=0,
+    can_delete=False,
+)
 

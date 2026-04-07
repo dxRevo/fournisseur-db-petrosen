@@ -1,9 +1,21 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Case, Count, F, IntegerField, Q, Value, When
+from django.db.models import (
+    Case,
+    Count,
+    ExpressionWrapper,
+    F,
+    FloatField,
+    IntegerField,
+    Q,
+    Sum,
+    Value,
+    When,
+)
+from django.db import transaction
 from django.db.models.functions import Cast, Round
 from django.http import FileResponse, Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.decorators.http import require_POST
@@ -16,8 +28,14 @@ from django.views.generic import (
     UpdateView,
 )
 
-from fournisseurs.forms import DomaineActiviteForm, FournisseurForm
-from fournisseurs.models import DomaineActivite, Fournisseur
+from fournisseurs.forms import (
+    DomaineActiviteForm,
+    CritereEvaluationFormSet,
+    EvaluationAnnuelleForm,
+    FournisseurForm,
+    get_criteres_actifs,
+)
+from fournisseurs.models import CritereEvaluation, DomaineActivite, EvaluationAnnuelle, Fournisseur
 import os
 
 # Champs pris en compte pour le taux : raison_sociale, domaines (≥1), contact,
@@ -265,6 +283,26 @@ class FournisseurDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Fournisseur.objects.select_related("created_by").prefetch_related("domaines")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        last_eval = (
+            self.object.evaluations_annuelles.prefetch_related("lignes__critere")
+            .order_by("-annee", "-date_creation")
+            .first()
+        )
+        rows = []
+        if last_eval:
+            for line in last_eval.lignes.all():
+                rows.append(
+                    {
+                        "line": line,
+                        "note_ponderee": round(float(line.note) * line.critere.coefficient, 2),
+                    }
+                )
+        context["last_evaluation"] = last_eval
+        context["last_evaluation_rows"] = rows
+        return context
+
 
 class FournisseurCreateView(LoginRequiredMixin, CreateView):
     model = Fournisseur
@@ -325,6 +363,146 @@ class DemandeAgrementFileView(LoginRequiredMixin, View):
         response = FileResponse(file_handle, content_type="application/pdf")
         response["Content-Disposition"] = f'inline; filename="{filename}"'
         return response
+
+
+class FournisseurEvaluationCreateView(LoginRequiredMixin, View):
+    template_name = "fournisseurs/fournisseur_evaluation_form.html"
+
+    def get(self, request, pk, *args, **kwargs):
+        fournisseur = get_object_or_404(Fournisseur, pk=pk)
+        annee = self._parse_annee(request.GET.get("annee"))
+        criteres = list(get_criteres_actifs())
+        form = EvaluationAnnuelleForm(criteres=criteres)
+        return self._render(request, fournisseur, form, annee, criteres)
+
+    def post(self, request, pk, *args, **kwargs):
+        fournisseur = get_object_or_404(Fournisseur, pk=pk)
+        annee = self._parse_annee(request.POST.get("annee"))
+        criteres = list(get_criteres_actifs())
+        form = EvaluationAnnuelleForm(request.POST, criteres=criteres)
+
+        if not form.is_valid():
+            return self._render(request, fournisseur, form, annee, criteres)
+
+        if EvaluationAnnuelle.objects.filter(fournisseur=fournisseur, annee=annee).exists():
+            messages.error(
+                request,
+                f"Une évaluation existe déjà pour {annee}.",
+            )
+            return self._render(request, fournisseur, form, annee, criteres)
+
+        with transaction.atomic():
+            evaluation = EvaluationAnnuelle.objects.create(
+                fournisseur=fournisseur,
+                annee=annee,
+                created_by=request.user,
+            )
+            form.save_lines(evaluation)
+
+        messages.success(request, f"Évaluation {annee} enregistrée. Note finale: {evaluation.note_finale}/10.")
+        return redirect("fournisseurs:fournisseur_detail", pk=fournisseur.pk)
+
+    def _parse_annee(self, raw_value):
+        from datetime import date
+
+        current_year = date.today().year
+        try:
+            annee = int(raw_value)
+        except (TypeError, ValueError):
+            return current_year
+        return annee if 2000 <= annee <= 2100 else current_year
+
+    def _render(self, request, fournisseur, form, annee, criteres):
+        total_coeff = sum(c.coefficient for c in criteres)
+        return render(
+            request,
+            self.template_name,
+            {
+                "fournisseur": fournisseur,
+                "form": form,
+                "annee": annee,
+                "criteres_count": len(criteres),
+                "total_coeff": total_coeff,
+            },
+        )
+
+
+class CritereEvaluationManageView(LoginRequiredMixin, View):
+    template_name = "fournisseurs/criteres_evaluation_manage.html"
+
+    def get(self, request, *args, **kwargs):
+        queryset = CritereEvaluation.objects.all().order_by("ordre", "libelle")
+        formset = CritereEvaluationFormSet(queryset=queryset)
+        return render(request, self.template_name, {"formset": formset})
+
+    def post(self, request, *args, **kwargs):
+        queryset = CritereEvaluation.objects.all().order_by("ordre", "libelle")
+        formset = CritereEvaluationFormSet(request.POST, queryset=queryset)
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "Critères mis à jour.")
+            return redirect("fournisseurs:criteres_evaluation_manage")
+        return render(request, self.template_name, {"formset": formset})
+
+
+class FournisseurClassementView(LoginRequiredMixin, TemplateView):
+    template_name = "fournisseurs/fournisseurs_classement.html"
+
+    def get_context_data(self, **kwargs):
+        from datetime import date
+
+        context = super().get_context_data(**kwargs)
+        selected_year = self.request.GET.get("annee")
+        current_year = date.today().year
+        try:
+            annee = int(selected_year) if selected_year else current_year
+        except ValueError:
+            annee = current_year
+
+        weighted_expr = ExpressionWrapper(
+            F("evaluations_annuelles__lignes__note")
+            * F("evaluations_annuelles__lignes__critere__coefficient"),
+            output_field=FloatField(),
+        )
+        coeff_expr = F("evaluations_annuelles__lignes__critere__coefficient")
+
+        classement_qs = (
+            Fournisseur.objects.all()
+            .annotate(
+                total_pondere=Sum(weighted_expr, filter=Q(evaluations_annuelles__annee=annee)),
+                total_coeff=Sum(coeff_expr, filter=Q(evaluations_annuelles__annee=annee)),
+            )
+            .annotate(
+                note_finale=Case(
+                    When(
+                        total_coeff__gt=0,
+                        then=ExpressionWrapper(
+                            F("total_pondere") / F("total_coeff"), output_field=FloatField()
+                        ),
+                    ),
+                    default=Value(0.0),
+                    output_field=FloatField(),
+                ),
+                has_evaluation=Case(
+                    When(total_coeff__gt=0, then=Value(1)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                ),
+            )
+            .order_by("-has_evaluation", "-note_finale", "raison_sociale")
+        )
+
+        classement = []
+        rank = 0
+        for fournisseur in classement_qs:
+            if fournisseur.has_evaluation:
+                rank += 1
+            classement.append({"rang": rank if fournisseur.has_evaluation else "—", "item": fournisseur})
+
+        context["annee"] = annee
+        context["classement"] = classement
+        context["has_data"] = any(row["item"].has_evaluation for row in classement)
+        return context
 
 
 @require_POST

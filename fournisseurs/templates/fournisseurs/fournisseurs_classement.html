@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Classement fournisseurs{% endblock %}
+
+{% block content %}
+  <header class="saas-page-header">
+    <div>
+      <h1 class="saas-page-title">
+        <i class="bi bi-trophy"></i>
+        <span>Classement annuel des fournisseurs</span>
+      </h1>
+      <p class="saas-page-sub mb-0">Classement calculé sur la note finale pondérée des critères d'évaluation.</p>
+    </div>
+  </header>
+
+  <div class="card mb-4">
+    <div class="card-body saas-card-body-pad">
+      <form method="get" class="row g-3 align-items-end">
+        <div class="col-sm-4 col-md-3">
+          <label for="id_annee" class="form-label">Année</label>
+          <input id="id_annee" type="number" name="annee" min="2000" max="2100" value="{{ annee }}" class="form-control">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary" type="submit">Afficher</button>
+        </div>
+        <div class="col-auto">
+          <a class="btn btn-outline-secondary" href="{% url 'fournisseurs:criteres_evaluation_manage' %}">Modifier les critères</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body saas-card-body-pad">
+      {% if has_data %}
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th style="width: 90px;">Rang</th>
+                <th>Fournisseur</th>
+                <th class="text-end">Note finale</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in classement %}
+                <tr>
+                  <td>
+                    {% if row.item.has_evaluation %}
+                      <span class="badge bg-light text-dark border">{{ row.rang }}</span>
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="{% url 'fournisseurs:fournisseur_detail' row.item.pk %}" class="fw-semibold text-decoration-none">
+                      {{ row.item.raison_sociale }}
+                    </a>
+                  </td>
+                  <td class="text-end">
+                    {% if row.item.has_evaluation %}
+                      <span class="fw-semibold">{{ row.item.note_finale|floatformat:2 }}/10</span>
+                    {% else %}
+                      <span class="text-muted">Non évalué</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">Aucune évaluation trouvée pour {{ annee }}.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
