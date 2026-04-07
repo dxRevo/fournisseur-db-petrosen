@@ -57,8 +57,16 @@
         <tbody>
           {% for domaine in domaines %}
             <tr>
-              <td>{{ domaine.nom }}</td>
-              <td>{{ domaine.nb_fournisseurs }}</td>
+              <td>
+                <a href="{% url 'fournisseurs:fournisseurs_list' %}?domaine={{ domaine.pk }}" class="fw-semibold text-decoration-none">
+                  {{ domaine.nom }}
+                </a>
+              </td>
+              <td>
+                <a href="{% url 'fournisseurs:fournisseurs_list' %}?domaine={{ domaine.pk }}">
+                  {{ domaine.nb_fournisseurs }}
+                </a>
+              </td>
               <td>
                 {% if domaine.created_by %}
                   {% firstof domaine.created_by.get_full_name domaine.created_by.username %}

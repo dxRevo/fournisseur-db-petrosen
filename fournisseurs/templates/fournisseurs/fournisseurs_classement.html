@@ -20,6 +20,15 @@
           <label for="id_annee" class="form-label">Année</label>
           <input id="id_annee" type="number" name="annee" min="2000" max="2100" value="{{ annee }}" class="form-control">
         </div>
+        <div class="col-sm-8 col-md-4">
+          <label for="id_domaine" class="form-label">Secteur d'activité</label>
+          <select id="id_domaine" name="domaine" class="form-select">
+            <option value="">Tous les secteurs</option>
+            {% for d in domaines %}
+              <option value="{{ d.id }}" {% if domaine_id == d.id|stringformat:"s" %}selected{% endif %}>{{ d.nom }}</option>
+            {% endfor %}
+          </select>
+        </div>
         <div class="col-auto">
           <button class="btn btn-primary" type="submit">Afficher</button>
         </div>
@@ -70,7 +79,7 @@
           </table>
         </div>
       {% else %}
-        <p class="text-muted mb-0">Aucune évaluation trouvée pour {{ annee }}.</p>
+        <p class="text-muted mb-0">Aucune évaluation trouvée pour {{ annee }} avec ce filtre secteur.</p>
       {% endif %}
     </div>
   </div>

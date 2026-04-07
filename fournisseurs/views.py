@@ -453,6 +453,7 @@ class FournisseurClassementView(LoginRequiredMixin, TemplateView):
 
         context = super().get_context_data(**kwargs)
         selected_year = self.request.GET.get("annee")
+        selected_domaine = (self.request.GET.get("domaine") or "").strip()
         current_year = date.today().year
         try:
             annee = int(selected_year) if selected_year else current_year
@@ -466,8 +467,12 @@ class FournisseurClassementView(LoginRequiredMixin, TemplateView):
         )
         coeff_expr = F("evaluations_annuelles__lignes__critere__coefficient")
 
+        fournisseurs_qs = Fournisseur.objects.all()
+        if selected_domaine:
+            fournisseurs_qs = fournisseurs_qs.filter(domaines__id=selected_domaine)
+
         classement_qs = (
-            Fournisseur.objects.all()
+            fournisseurs_qs
             .annotate(
                 total_pondere=Sum(weighted_expr, filter=Q(evaluations_annuelles__annee=annee)),
                 total_coeff=Sum(coeff_expr, filter=Q(evaluations_annuelles__annee=annee)),
@@ -490,6 +495,7 @@ class FournisseurClassementView(LoginRequiredMixin, TemplateView):
                 ),
             )
             .order_by("-has_evaluation", "-note_finale", "raison_sociale")
+            .distinct()
         )
 
         classement = []
@@ -500,6 +506,8 @@ class FournisseurClassementView(LoginRequiredMixin, TemplateView):
             classement.append({"rang": rank if fournisseur.has_evaluation else "—", "item": fournisseur})
 
         context["annee"] = annee
+        context["domaine_id"] = selected_domaine
+        context["domaines"] = DomaineActivite.objects.all().order_by("nom")
         context["classement"] = classement
         context["has_data"] = any(row["item"].has_evaluation for row in classement)
         return context
