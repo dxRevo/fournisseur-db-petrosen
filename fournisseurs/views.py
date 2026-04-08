@@ -3,12 +3,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import (
     Case,
     Count,
-    ExpressionWrapper,
     F,
-    FloatField,
     IntegerField,
     Q,
-    Sum,
     Value,
     When,
 )
@@ -460,50 +457,44 @@ class FournisseurClassementView(LoginRequiredMixin, TemplateView):
         except ValueError:
             annee = current_year
 
-        weighted_expr = ExpressionWrapper(
-            F("evaluations_annuelles__lignes__note")
-            * F("evaluations_annuelles__lignes__critere__coefficient"),
-            output_field=FloatField(),
-        )
-        coeff_expr = F("evaluations_annuelles__lignes__critere__coefficient")
-
         fournisseurs_qs = Fournisseur.objects.all()
         if selected_domaine:
             fournisseurs_qs = fournisseurs_qs.filter(domaines__id=selected_domaine)
+        fournisseurs = list(fournisseurs_qs.distinct())
+        evaluations = (
+            EvaluationAnnuelle.objects.filter(annee=annee, fournisseur__in=fournisseurs)
+            .select_related("fournisseur")
+            .prefetch_related("lignes__critere")
+        )
+        evaluations_by_fournisseur_id = {
+            evaluation.fournisseur_id: evaluation for evaluation in evaluations
+        }
 
-        classement_qs = (
-            fournisseurs_qs
-            .annotate(
-                total_pondere=Sum(weighted_expr, filter=Q(evaluations_annuelles__annee=annee)),
-                total_coeff=Sum(coeff_expr, filter=Q(evaluations_annuelles__annee=annee)),
+        for fournisseur in fournisseurs:
+            evaluation = evaluations_by_fournisseur_id.get(fournisseur.pk)
+            if evaluation:
+                fournisseur.has_evaluation = 1
+                fournisseur.note_finale = evaluation.note_finale
+            else:
+                fournisseur.has_evaluation = 0
+                fournisseur.note_finale = 0.0
+
+        fournisseurs.sort(
+            key=lambda f: (
+                -f.has_evaluation,
+                -float(f.note_finale),
+                f.raison_sociale.lower(),
             )
-            .annotate(
-                note_finale=Case(
-                    When(
-                        total_coeff__gt=0,
-                        then=ExpressionWrapper(
-                            F("total_pondere") / F("total_coeff"), output_field=FloatField()
-                        ),
-                    ),
-                    default=Value(0.0),
-                    output_field=FloatField(),
-                ),
-                has_evaluation=Case(
-                    When(total_coeff__gt=0, then=Value(1)),
-                    default=Value(0),
-                    output_field=IntegerField(),
-                ),
-            )
-            .order_by("-has_evaluation", "-note_finale", "raison_sociale")
-            .distinct()
         )
 
         classement = []
         rank = 0
-        for fournisseur in classement_qs:
+        for fournisseur in fournisseurs:
             if fournisseur.has_evaluation:
                 rank += 1
-            classement.append({"rang": rank if fournisseur.has_evaluation else "—", "item": fournisseur})
+            classement.append(
+                {"rang": rank if fournisseur.has_evaluation else "—", "item": fournisseur}
+            )
 
         context["annee"] = annee
         context["domaine_id"] = selected_domaine
