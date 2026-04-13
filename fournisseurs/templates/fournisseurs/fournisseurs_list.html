@@ -146,7 +146,7 @@
           <li class="page-item">
             <a
               class="page-link"
-              href="{% if query_string %}?{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}"
+              href="?{% if query_string %}?{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}"
             >
               Précédent
             </a>
@@ -165,7 +165,7 @@
           <li class="page-item">
             <a
               class="page-link"
-              href="{% if query_string %}?{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}"
+              href="?{% if query_string %}?{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}"
             >
               Suivant
             </a>
