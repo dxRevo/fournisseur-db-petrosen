@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import (
     Case,
     Count,
@@ -38,6 +38,11 @@ import os
 # Champs pris en compte pour le taux : raison_sociale, domaines (≥1), contact,
 # fonction, téléphone, adresse, email, modalités, NINEA, RC, PDF d’agrément.
 TOTAL_COMPLETION_FIELDS = 11
+
+
+class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 def _fournisseur_filled_sum_expr():
@@ -362,7 +367,7 @@ class DemandeAgrementFileView(LoginRequiredMixin, View):
         return response
 
 
-class FournisseurEvaluationCreateView(LoginRequiredMixin, View):
+class FournisseurEvaluationCreateView(StaffRequiredMixin, View):
     template_name = "fournisseurs/fournisseur_evaluation_form.html"
 
     def get(self, request, pk, *args, **kwargs):
@@ -424,7 +429,7 @@ class FournisseurEvaluationCreateView(LoginRequiredMixin, View):
         )
 
 
-class CritereEvaluationManageView(LoginRequiredMixin, View):
+class CritereEvaluationManageView(StaffRequiredMixin, View):
     template_name = "fournisseurs/criteres_evaluation_manage.html"
 
     def get(self, request, *args, **kwargs):
@@ -442,7 +447,7 @@ class CritereEvaluationManageView(LoginRequiredMixin, View):
         return render(request, self.template_name, {"formset": formset})
 
 
-class FournisseurClassementView(LoginRequiredMixin, TemplateView):
+class FournisseurClassementView(StaffRequiredMixin, TemplateView):
     template_name = "fournisseurs/fournisseurs_classement.html"
 
     def get_context_data(self, **kwargs):

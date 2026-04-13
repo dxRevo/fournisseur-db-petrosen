@@ -56,7 +56,7 @@
       <label class="form-label">Statut</label>
       <select name="statut" class="form-select">
         <option value="" {% if not statut %}selected{% endif %}>Tous les statuts</option>
-        <option value="en_attente" {% if statut == "en_attente" %}selected{% endif %}>En attente</option>
+        <option value="en_attente" {% if statut == "en_attente" %}selected{% endif %}>En attente de validation</option>
         <option value="valide" {% if statut == "valide" %}selected{% endif %}>Validé</option>
         <option value="refuse" {% if statut == "refuse" %}selected{% endif %}>Refusé</option>
       </select>
@@ -104,7 +104,7 @@
               <td>{{ fournisseur.email }}</td>
               <td>
                 {% if fournisseur.statut == 'en_attente' %}
-                  <span class="badge rounded-pill badge-statut-en_attente">En attente</span>
+                  <span class="badge rounded-pill badge-statut-en_attente">En attente de validation</span>
                 {% elif fournisseur.statut == 'valide' %}
                   <span class="badge rounded-pill badge-statut-valide">Validé</span>
                 {% else %}
