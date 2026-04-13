@@ -43,7 +43,7 @@ class DomaineActivite(models.Model):
 
 class Fournisseur(models.Model):
     class Statut(models.TextChoices):
-        EN_ATTENTE = "en_attente", "En attente"
+        EN_ATTENTE = "en_attente", "En attente de validation"
         VALIDE = "valide", "Validé"
         REFUSE = "refuse", "Refusé"
 
