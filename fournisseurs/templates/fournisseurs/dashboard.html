@@ -153,20 +153,20 @@
                   <span class="badge rounded-pill {% if f.completeness == 100 %}badge-qualite-complet-ok{% elif f.completeness >= 50 %}badge-qualite-complet-moyen{% else %}badge-qualite-complet-faible{% endif %}">{{ f.completeness }}%</span>
                 </td>
                 <td class="text-end">
-                  <div class="btn-group btn-group-sm" role="group">
-                    <a class="btn btn-outline-primary" href="{% url 'fournisseurs:fournisseur_detail' f.pk %}">Voir</a>
-                    <a class="btn btn-outline-secondary" href="{% url 'fournisseurs:fournisseur_update' f.pk %}">Modifier</a>
+                  <div class="d-inline-flex align-items-center gap-0">
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'fournisseurs:fournisseur_detail' f.pk %}">Voir</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'fournisseurs:fournisseur_update' f.pk %}">Modifier</a>
+                    <form method="post" action="{% url 'fournisseurs:fournisseur_quick_status_update' f.pk %}" class="m-0">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="valide">
+                      <button type="submit" class="btn btn-sm btn-success">Valider</button>
+                    </form>
+                    <form method="post" action="{% url 'fournisseurs:fournisseur_quick_status_update' f.pk %}" class="m-0">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="refuse">
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Refuser</button>
+                    </form>
                   </div>
-                  <form method="post" action="{% url 'fournisseurs:fournisseur_quick_status_update' f.pk %}" class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="status" value="valide">
-                    <button type="submit" class="btn btn-sm btn-success">Valider</button>
-                  </form>
-                  <form method="post" action="{% url 'fournisseurs:fournisseur_quick_status_update' f.pk %}" class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="status" value="refuse">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Refuser</button>
-                  </form>
                 </td>
               </tr>
             {% empty %}
