@@ -153,7 +153,7 @@
                   <span class="badge rounded-pill {% if f.completeness == 100 %}badge-qualite-complet-ok{% elif f.completeness >= 50 %}badge-qualite-complet-moyen{% else %}badge-qualite-complet-faible{% endif %}">{{ f.completeness }}%</span>
                 </td>
                 <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-0">
+                  <div class="d-inline-flex align-items-center gap-0 dashboard-actions-segmented">
                     <a class="btn btn-sm btn-outline-primary" href="{% url 'fournisseurs:fournisseur_detail' f.pk %}">Voir</a>
                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'fournisseurs:fournisseur_update' f.pk %}">Modifier</a>
                     <form method="post" action="{% url 'fournisseurs:fournisseur_quick_status_update' f.pk %}" class="m-0">

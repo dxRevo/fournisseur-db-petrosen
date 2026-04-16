@@ -471,6 +471,26 @@
         border-color: rgba(34, 197, 94, 0.2);
       }
 
+      .dashboard-actions-segmented > * {
+        margin: 0 !important;
+      }
+
+      .dashboard-actions-segmented .btn {
+        border-radius: 0;
+      }
+
+      .dashboard-actions-segmented > :first-child .btn,
+      .dashboard-actions-segmented > :first-child {
+        border-top-left-radius: var(--saas-radius-sm);
+        border-bottom-left-radius: var(--saas-radius-sm);
+      }
+
+      .dashboard-actions-segmented > :last-child .btn,
+      .dashboard-actions-segmented > :last-child {
+        border-top-right-radius: var(--saas-radius-sm);
+        border-bottom-right-radius: var(--saas-radius-sm);
+      }
+
       /* Statuts agrément */
       .badge-statut-en_attente {
         background: #fef3c7;
