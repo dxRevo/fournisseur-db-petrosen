@@ -13,6 +13,12 @@ class ForcePasswordChangeMiddleware:
         if not request.user.is_authenticated:
             return self.get_response(request)
 
+        # Pour les comptes authentifiés via LDAP, le mot de passe est géré
+        # par l'annuaire (AD/LDAP), donc on ne force pas le changement local.
+        auth_backend = request.session.get("_auth_user_backend")
+        if auth_backend == "django_auth_ldap.backend.LDAPBackend":
+            return self.get_response(request)
+
         path = request.path
         if path.startswith("/login") or path.startswith("/logout"):
             return self.get_response(request)

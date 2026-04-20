@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 
@@ -132,3 +133,49 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+
+# --- LDAP / Active Directory ---
+# Dépendances requises:
+#   pip install django-auth-ldap python-ldap
+_LDAP_CONFIGURED = False
+try:
+    import ldap
+    from django_auth_ldap.config import LDAPSearch
+except ImportError:
+    ldap = None
+    LDAPSearch = None
+else:
+    _LDAP_CONFIGURED = True
+
+if _LDAP_CONFIGURED:
+    AUTH_LDAP_SERVER_URI = os.environ.get(
+        "AUTH_LDAP_SERVER_URI",
+        "ldap://PETROSEN-SRV-DC1.PETROSEN.SN",
+    )
+
+    AUTH_LDAP_BIND_DN = os.environ.get("AUTH_LDAP_BIND_DN", "")
+    AUTH_LDAP_BIND_PASSWORD = os.environ.get("AUTH_LDAP_BIND_PASSWORD", "")
+
+    AUTH_LDAP_USER_SEARCH = LDAPSearch(
+        os.environ.get("AUTH_LDAP_USER_BASE_DN", "DC=PETROSEN,DC=SN"),
+        ldap.SCOPE_SUBTREE,
+        os.environ.get("AUTH_LDAP_USER_FILTER", "(sAMAccountName=%(user)s)"),
+    )
+
+    AUTH_LDAP_USER_ATTR_MAP = {
+        "last_name": "sn",
+        "first_name": "givenName",
+        "email": "mail",
+    }
+
+    AUTH_LDAP_ALWAYS_UPDATE_USER = True
+
+    AUTH_LDAP_CONNECTION_OPTIONS = {
+        ldap.OPT_REFERRALS: 0,
+    }
+
+    AUTHENTICATION_BACKENDS = [
+        "django_auth_ldap.backend.LDAPBackend",
+        "django.contrib.auth.backends.ModelBackend",
+    ]
